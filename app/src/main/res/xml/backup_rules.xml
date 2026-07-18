@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Local-first app: allow backup of the Room DB and preferences, exclude nothing sensitive. -->
+<full-backup-content>
+    <include domain="database" path="meditation.db" />
+    <include domain="file" path="datastore/" />
+</full-backup-content>

@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Meditation Timer</string>
+
+    <string name="channel_session_name">Active Session</string>
+    <string name="channel_session_desc">Ongoing meditation session controls</string>
+    <string name="channel_completion_name">Session Complete</string>
+    <string name="channel_completion_desc">Notification shown when a session finishes</string>
+
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_add_five">Add 5 min</string>
+    <string name="action_finish">Finish</string>
+
+    <string name="notif_session_title">Meditation in progress</string>
+    <string name="notif_complete_title">Session complete</string>
+</resources>
