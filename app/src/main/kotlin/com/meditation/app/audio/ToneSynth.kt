@@ -9,6 +9,7 @@ import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.exp
 import kotlin.math.sin
+import kotlin.math.tanh
 
 /**
  * Procedurally synthesizes short "strike" sounds — bells, bowls, gongs, wood, chimes — via
@@ -41,14 +42,21 @@ class ToneSynth {
     private fun renderAndPlay(v: Voice, volume: Float) {
         val total = (v.durationSec * sampleRate).toInt().coerceAtLeast(1)
         val buf = FloatArray(total)
+        val rand = kotlin.random.Random(v.baseHz.toRawBits())
+        var transientLp = 0.0 // one-pole low-pass state for the strike transient
         for (n in 0 until total) {
             val t = n.toDouble() / sampleRate
-            val env = exp(-t / v.decayTau) * (1.0 - exp(-t / v.attackTau))
+            val attack = 1.0 - exp(-t / v.attackTau)
             var s = 0.0
-            for (p in v.partials) s += p.amp * sin(2 * PI * v.baseHz * p.ratio * t)
-            var x = s * env * v.gain * volume
-            if (x > 1.0) x = 1.0 else if (x < -1.0) x = -1.0
-            buf[n] = x.toFloat()
+            // Each partial has its OWN decay — higher/inharmonic partials fade first, like real metal.
+            for (p in v.partials) s += p.amp * exp(-t / p.decayTau) * sin(2 * PI * v.baseHz * p.ratio * t)
+            s *= attack
+            // Short filtered-noise "strike" transient gives the attack a physical edge.
+            if (v.transientAmt > 0.0 && t < 0.05) {
+                transientLp += (rand.nextDouble(-1.0, 1.0) - transientLp) * 0.35
+                s += transientLp * v.transientAmt * exp(-t / 0.008)
+            }
+            buf[n] = tanh(s * v.gain * volume).toFloat() // soft-clip, no harsh breakup
         }
 
         val minBuf = AudioTrack.getMinBufferSize(
@@ -91,14 +99,15 @@ class ToneSynth {
 
     // ---- Voice mapping --------------------------------------------------------------------
 
-    private class Partial(val ratio: Double, val amp: Double)
+    /** A single mode: frequency ratio, starting amplitude, and its own decay time constant. */
+    private class Partial(val ratio: Double, val amp: Double, val decayTau: Double)
     private class Voice(
         val baseHz: Double,
         val partials: List<Partial>,
         val attackTau: Double,
-        val decayTau: Double,
         val durationSec: Double,
         val gain: Double,
+        val transientAmt: Double,
     )
 
     private fun voiceFor(asset: SoundAsset): Voice {
@@ -113,28 +122,37 @@ class ToneSynth {
         return when (asset.category) {
             SoundCategory.BELL, SoundCategory.CHIME -> Voice(
                 baseHz = 660.0 * toneFactor * jitter,
-                partials = listOf(Partial(1.0, 1.0), Partial(2.0, 0.55), Partial(2.76, 0.4), Partial(5.4, 0.22)),
-                attackTau = 0.002, decayTau = 1.9, durationSec = 3.4, gain = 0.55,
+                partials = listOf(
+                    Partial(1.0, 1.0, 2.4), Partial(2.0, 0.5, 1.5), Partial(2.76, 0.45, 0.9),
+                    Partial(5.4, 0.25, 0.5), Partial(8.9, 0.12, 0.28),
+                ),
+                attackTau = 0.0015, durationSec = 3.6, gain = 0.5, transientAmt = 0.25,
             )
             SoundCategory.BOWL -> Voice(
                 baseHz = 300.0 * toneFactor * jitter,
-                partials = listOf(Partial(1.0, 1.0), Partial(1.004, 0.9), Partial(2.01, 0.45), Partial(2.98, 0.28)),
-                attackTau = 0.02, decayTau = 4.6, durationSec = 6.5, gain = 0.5,
+                partials = listOf(
+                    Partial(1.0, 1.0, 5.5), Partial(1.004, 0.95, 5.5), // detuned pair → slow beating
+                    Partial(2.01, 0.4, 3.5), Partial(2.98, 0.22, 2.2), Partial(4.2, 0.1, 1.2),
+                ),
+                attackTau = 0.03, durationSec = 7.0, gain = 0.46, transientAmt = 0.08,
             )
             SoundCategory.GONG -> Voice(
                 baseHz = 150.0 * toneFactor * jitter,
-                partials = listOf(Partial(1.0, 1.0), Partial(1.48, 0.7), Partial(2.34, 0.5), Partial(3.86, 0.32), Partial(5.12, 0.2)),
-                attackTau = 0.03, decayTau = 5.5, durationSec = 7.5, gain = 0.5,
+                partials = listOf(
+                    Partial(1.0, 1.0, 6.0), Partial(1.48, 0.7, 4.5), Partial(2.34, 0.5, 3.2),
+                    Partial(3.86, 0.35, 2.0), Partial(5.12, 0.22, 1.3), Partial(7.24, 0.12, 0.8),
+                ),
+                attackTau = 0.02, durationSec = 8.0, gain = 0.44, transientAmt = 0.4,
             )
             SoundCategory.WOOD -> Voice(
                 baseHz = 1100.0 * toneFactor * jitter,
-                partials = listOf(Partial(1.0, 1.0), Partial(3.1, 0.4)),
-                attackTau = 0.001, decayTau = 0.06, durationSec = 0.25, gain = 0.7,
+                partials = listOf(Partial(1.0, 1.0, 0.05), Partial(3.1, 0.5, 0.03), Partial(6.0, 0.2, 0.02)),
+                attackTau = 0.0008, durationSec = 0.3, gain = 0.7, transientAmt = 0.8,
             )
             else -> Voice( // soft completion bell
                 baseHz = 560.0 * toneFactor * jitter,
-                partials = listOf(Partial(1.0, 1.0), Partial(2.0, 0.4)),
-                attackTau = 0.004, decayTau = 2.2, durationSec = 3.0, gain = 0.5,
+                partials = listOf(Partial(1.0, 1.0, 2.4), Partial(2.0, 0.35, 1.4), Partial(3.0, 0.12, 0.8)),
+                attackTau = 0.004, durationSec = 3.2, gain = 0.46, transientAmt = 0.1,
             )
         }
     }

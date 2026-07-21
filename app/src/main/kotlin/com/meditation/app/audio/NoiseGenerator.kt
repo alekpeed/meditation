@@ -8,6 +8,7 @@ import com.meditation.core.GeneratorConfig
 import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.sin
+import kotlin.math.tanh
 import kotlin.random.Random
 
 /**
@@ -80,8 +81,9 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                             (pink * 0.11).toFloat()
                         }
                         "brown" -> {
-                            brown = (brown + 0.02 * whiteSample()).coerceIn(-1.0, 1.0)
-                            (brown * 3.5).toFloat()
+                            // Leaky integrator (never clamps to a rail), then soft-limited below.
+                            brown = brown * 0.996 + whiteSample() * 0.04
+                            (brown * 2.2).toFloat()
                         }
                         "sine" -> {
                             phase += 2 * PI * freq / sampleRate
@@ -97,7 +99,9 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                         }
                         else -> whiteSample()
                     }
-                    buffer[i] = sample * gain
+                    // tanh soft-clip: smoothly saturates instead of hard-clipping to the rails,
+                    // which is what caused the brown-noise breakup.
+                    buffer[i] = tanh((sample * gain).toDouble()).toFloat()
                 }
                 val t = track ?: break
                 t.write(buffer, 0, buffer.size, AudioTrack.WRITE_BLOCKING)
