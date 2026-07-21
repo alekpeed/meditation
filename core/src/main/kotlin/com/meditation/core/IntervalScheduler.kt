@@ -59,6 +59,21 @@ object IntervalScheduler {
                     n++
                 }
             }
+
+            is IntervalPlan.Random -> buildList {
+                if (plan.minIntervalMs <= 0 || plan.maxIntervalMs < plan.minIntervalMs) return@buildList
+                val rng = kotlin.random.Random(plan.seed)
+                val span = plan.maxIntervalMs - plan.minIntervalMs
+                var offset = 0L
+                var n = 0
+                while (n < cap) {
+                    val gap = plan.minIntervalMs + if (span > 0) rng.nextLong(span + 1) else 0L
+                    offset += gap
+                    if (offset >= ceilingMs) break
+                    add(offset)
+                    n++
+                }
+            }
         }
     }
 
@@ -67,6 +82,7 @@ object IntervalScheduler {
         is IntervalPlan.EveryXMinutes -> plan.soundId
         is IntervalPlan.CustomTimestamps -> plan.soundId
         is IntervalPlan.Progressive -> plan.soundId
+        is IntervalPlan.Random -> plan.soundId
     }
 
     fun strikeCountOf(plan: IntervalPlan): Int = when (plan) {
@@ -74,5 +90,6 @@ object IntervalScheduler {
         is IntervalPlan.EveryXMinutes -> plan.strikeCount
         is IntervalPlan.CustomTimestamps -> plan.strikeCount
         is IntervalPlan.Progressive -> plan.strikeCount
+        is IntervalPlan.Random -> plan.strikeCount
     }
 }

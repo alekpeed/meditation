@@ -117,6 +117,20 @@ sealed interface IntervalPlan {
         val soundId: String,
         val strikeCount: Int = 1,
     ) : IntervalPlan
+
+    /**
+     * Randomly spaced intervals (Phase 2). Each gap is drawn uniformly from [minIntervalMs]..
+     * [maxIntervalMs]. [seed] makes the sequence deterministic so it survives process death and
+     * deduplicates correctly; the builder assigns a fresh seed per stage.
+     */
+    @Serializable
+    data class Random(
+        val minIntervalMs: Long,
+        val maxIntervalMs: Long,
+        val soundId: String,
+        val seed: Long = 1,
+        val strikeCount: Int = 1,
+    ) : IntervalPlan
 }
 
 @Serializable

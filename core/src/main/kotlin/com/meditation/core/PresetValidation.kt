@@ -59,6 +59,10 @@ object PresetValidation {
                 if (plan.startMs <= 0) errors += "$label progressive start must be positive."
                 if (plan.incrementMs < 0) errors += "$label progressive increment cannot be negative."
             }
+            is IntervalPlan.Random -> {
+                if (plan.minIntervalMs <= 0) errors += "$label random minimum must be positive."
+                if (plan.maxIntervalMs < plan.minIntervalMs) errors += "$label random maximum must be ≥ minimum."
+            }
         }
     }
 }

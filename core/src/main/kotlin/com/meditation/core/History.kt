@@ -1,5 +1,8 @@
 package com.meditation.core
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class CompletedSession(
     val sessionId: String,
     val presetId: String,
