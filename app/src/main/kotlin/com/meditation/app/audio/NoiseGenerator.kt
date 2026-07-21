@@ -32,6 +32,11 @@ class NoiseGenerator(private val config: GeneratorConfig) {
         val minBuf = AudioTrack.getMinBufferSize(
             sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_FLOAT,
         ).coerceAtLeast(4096)
+        // Give the track several buffers of headroom so a GC pause or scheduling hiccup can't
+        // starve it mid-stream — a shallow (minimum-size) buffer is what makes streamed noise
+        // click and "break up". We generate in small chunks but keep the pipe deep.
+        val trackBytes = (minBuf * 4).coerceAtLeast(32_768)
+        val chunkFloats = (minBuf / 4).coerceAtLeast(1024)
 
         val at = AudioTrack.Builder()
             .setAudioAttributes(
@@ -47,17 +52,20 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                     .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                     .build(),
             )
-            .setBufferSizeInBytes(minBuf)
+            .setBufferSizeInBytes(trackBytes)
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
         track = at
         at.play()
 
         worker = thread(name = "noise-${config.type}", isDaemon = true) {
-            val buffer = FloatArray(minBuf / 4)
+            // Run at audio priority so the OS won't preempt us and underrun the track.
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO)
+            val buffer = FloatArray(chunkFloats)
             // Filter/oscillator state kept across buffers so there are no seams between writes.
             var b0 = 0.0; var b1 = 0.0; var b2 = 0.0; var b3 = 0.0; var b4 = 0.0; var b5 = 0.0; var b6 = 0.0
             var brown = 0.0
+            var whiteLp = 0.0
             var phase = 0.0
             var phase2 = 0.0
             val freq = config.frequencyHz ?: 110.0
@@ -66,7 +74,13 @@ class NoiseGenerator(private val config: GeneratorConfig) {
             while (running) {
                 for (i in buffer.indices) {
                     val sample = when (config.type) {
-                        "white" -> whiteSample()
+                        "white" -> {
+                            // Full-band digital white noise has a brittle, hissy top octave that
+                            // makes it fatiguing. A gentle one-pole low-pass (~7 kHz) rounds that
+                            // off; the ×1.3 restores the level the filter removes.
+                            whiteLp += 0.6 * (whiteSample() - whiteLp)
+                            (whiteLp * 1.3).toFloat()
+                        }
                         "pink" -> {
                             val w = whiteSample().toDouble()
                             // Paul Kellet's pink-noise approximation.
