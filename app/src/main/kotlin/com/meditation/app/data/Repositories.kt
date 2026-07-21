@@ -61,4 +61,43 @@ class SoundRepository(private val dao: SoundDao, private val attributionDao: Att
         attributionDao.upsertAll(AssetCatalog.loadAttributions(context))
         dao.upsertAll(AssetCatalog.loadSounds(context))
     }
+
+    /**
+     * Copy a user-selected audio file into app-private storage and register it as an imported sound.
+     * The file is copied (not merely referenced) so it survives even if the original URI is revoked;
+     * nothing is ever uploaded (brief §9.4, §22). Returns the new sound id, or null on failure.
+     */
+    suspend fun importFromUri(context: Context, uri: android.net.Uri, displayName: String): String? {
+        return try {
+            val dir = java.io.File(context.filesDir, "imported").apply { mkdirs() }
+            val id = "imported-${java.util.UUID.randomUUID()}"
+            val target = java.io.File(dir, "$id.audio")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                target.outputStream().use { output -> input.copyTo(output) }
+            } ?: return null
+            dao.upsertAll(
+                listOf(
+                    SoundEntity(
+                        id = id,
+                        name = displayName.ifBlank { "Imported sound" },
+                        category = "IMPORTED",
+                        sourceType = "IMPORTED",
+                        fileUri = android.net.Uri.fromFile(target).toString(),
+                        generatorConfigJson = null,
+                        imageAssetId = null,
+                        durationMs = null,
+                        defaultVolume = 0.8,
+                        tagsJson = "[]",
+                        description = "Imported by you.",
+                        rolesJson = "[\"OPENING\",\"INTERVAL\",\"CLOSING\",\"AMBIENCE\"]",
+                        attributionId = null,
+                        favorite = false,
+                    ),
+                ),
+            )
+            id
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

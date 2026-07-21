@@ -1,6 +1,10 @@
 package com.meditation.app.audio
 
 import android.content.Context
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
 import com.meditation.app.data.SoundRepository
 import com.meditation.core.ActiveSessionState
 import com.meditation.core.SoundEvent
@@ -17,8 +21,9 @@ import kotlinx.coroutines.CoroutineScope
  * This class is deliberately resilient: any missing asset degrades to silence rather than crashing,
  * so a session's timing (the actual product) is never compromised by an audio problem.
  */
+@OptIn(UnstableApi::class)
 class AudioController(
-    context: Context,
+    private val context: Context,
     private val scope: CoroutineScope,
     private val sounds: SoundRepository,
 ) {
@@ -29,6 +34,11 @@ class AudioController(
     private val playerFactory = { AmbiencePlayer(context, scope) }
     private var masterAmbience = 0.6f
     private var focusHeld = false
+
+    // Preview playback is kept on entirely separate players so it can never disturb an active
+    // session's audio (brief §11). previewMix supports the ambient mixer's multi-layer preview.
+    private val previewExos = LinkedHashMap<String, ExoPlayer>()
+    private val previewNoises = LinkedHashMap<String, NoiseGenerator>()
 
     init {
         focus.onDuck = { recorded.values.forEach { it.duck() } }
@@ -81,6 +91,48 @@ class AudioController(
         }
     }
 
+    // ---- Preview (isolated from session audio) --------------------------------------------
+
+    /** Preview one sound. Short strikes play once; ambience/generated loop until [stopPreview]. */
+    suspend fun previewSound(soundId: String, volume: Double) {
+        stopPreview()
+        startPreview(soundId, volume)
+    }
+
+    /** Preview a full ambience mix (up to three layers) without touching the active session. */
+    suspend fun previewMix(layers: List<Pair<String, Double>>) {
+        stopPreview()
+        layers.take(3).forEach { (id, vol) -> startPreview(id, vol) }
+    }
+
+    private suspend fun startPreview(soundId: String, volume: Double) {
+        val asset = sounds.byId(soundId) ?: return
+        val vol = volume.toFloat().coerceIn(0f, 1f)
+        if (asset.sourceType == SoundSourceType.GENERATED && asset.generatorConfig != null) {
+            previewNoises[soundId] = NoiseGenerator(asset.generatorConfig!!).apply {
+                setGain(vol.toDouble()); start()
+            }
+        } else {
+            val uri = asset.fileUri ?: return
+            val exo = ExoPlayer.Builder(context).build().apply {
+                // Loop long ambience so the preview is audible; short strikes end naturally.
+                repeatMode = if (asset.durationMs != null && asset.durationMs!! < 4000)
+                    Player.REPEAT_MODE_OFF else Player.REPEAT_MODE_ONE
+                setMediaItem(MediaItem.fromUri(uri))
+                this.volume = vol
+                prepare(); play()
+            }
+            previewExos[soundId] = exo
+        }
+    }
+
+    fun stopPreview() {
+        previewExos.values.forEach { runCatching { it.release() } }
+        previewExos.clear()
+        previewNoises.values.forEach { it.stop() }
+        previewNoises.clear()
+    }
+
     fun stopAll() {
         recorded.values.forEach { it.stop() }
         recorded.clear()
@@ -91,6 +143,7 @@ class AudioController(
 
     fun release() {
         stopAll()
+        stopPreview()
         recorded.values.forEach { it.release() }
         bells.release()
     }

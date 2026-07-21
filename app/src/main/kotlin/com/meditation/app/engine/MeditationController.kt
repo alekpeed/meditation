@@ -95,6 +95,12 @@ class MeditationController(
         }
     }
 
+    // ---- Preview (isolated; safe to call during an active session) ------------------------
+
+    fun previewSound(soundId: String, volume: Double) = scope.launch { audio.previewSound(soundId, volume) }
+    fun previewMix(layers: List<Pair<String, Double>>) = scope.launch { audio.previewMix(layers) }
+    fun stopPreview() = audio.stopPreview()
+
     /** Called by the alarm receiver as the final-bell fallback. Idempotent via engine dedup. */
     fun onFinalAlarm(sessionId: String) = scope.launch {
         mutex.withLock {

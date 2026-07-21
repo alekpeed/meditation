@@ -3,6 +3,9 @@ package com.meditation.app.ui.screen
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,6 +72,26 @@ fun SettingsScreen(vm: MeditationViewModel) {
             Text(
                 "Battery optimization can delay background timers on some devices. This app cannot " +
                     "guarantee an exemption; exact alarms are used as a fallback for the final bell.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+        }
+
+        Spacer(Modifier.height(12.dp))
+        val exportJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(vm.exportJson().toByteArray()) }
+        }
+        val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+            if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(vm.exportCsv().toByteArray()) }
+        }
+        SectionCard("Data") {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { exportJson.launch("meditation-history.json") }) { Text("Export JSON") }
+                Button(onClick = { exportCsv.launch("meditation-history.csv") }) { Text("Export CSV") }
+            }
+            Text(
+                "Exports your session history to a file you choose. Nothing leaves the device otherwise.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp),

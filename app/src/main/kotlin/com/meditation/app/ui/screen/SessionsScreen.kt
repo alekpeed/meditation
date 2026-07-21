@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
@@ -30,15 +31,15 @@ import com.meditation.app.ui.Format
 import com.meditation.app.ui.MeditationViewModel
 
 @Composable
-fun SessionsScreen(vm: MeditationViewModel) {
+fun SessionsScreen(vm: MeditationViewModel, onCreate: () -> Unit, onEdit: (String) -> Unit) {
     val presets by vm.presets.collectAsStateWithLifecycle()
 
     if (presets.isEmpty()) {
         EmptyState(
             title = "No presets yet",
             body = "Create a multi-stage preset to reuse your favorite session structures.",
-            actionLabel = "Create sample preset",
-            onAction = { vm.savePreset(samplePreset()) },
+            actionLabel = "Create a preset",
+            onAction = onCreate,
         )
         return
     }
@@ -46,7 +47,7 @@ fun SessionsScreen(vm: MeditationViewModel) {
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Sessions", style = MaterialTheme.typography.headlineSmall)
-            Button(onClick = { vm.savePreset(samplePreset()) }) { Text("New") }
+            Button(onClick = onCreate) { Text("New") }
         }
         Spacer(Modifier.height(12.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -67,6 +68,9 @@ fun SessionsScreen(vm: MeditationViewModel) {
                                 contentDescription = "Favorite",
                             )
                         }
+                        IconButton(onClick = { onEdit(preset.id) }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                        }
                         IconButton(onClick = { vm.deletePreset(preset.id) }) {
                             Icon(Icons.Filled.Delete, contentDescription = "Delete")
                         }
@@ -78,15 +82,3 @@ fun SessionsScreen(vm: MeditationViewModel) {
     }
 }
 
-private fun samplePreset() = com.meditation.core.SessionPreset(
-    id = "preset-${java.util.UUID.randomUUID()}",
-    name = "Two-stage sit",
-    preparationMs = 10_000,
-    stages = listOf(
-        com.meditation.core.SessionStage("s1", "Settle", 5 * 60_000, closingSoundId = "gong-small-01"),
-        com.meditation.core.SessionStage("s2", "Open awareness", 15 * 60_000, openingSoundId = "bowl-medium-01"),
-    ),
-    finalSoundId = "gong-deep-01",
-    createdAt = System.currentTimeMillis(),
-    updatedAt = System.currentTimeMillis(),
-)

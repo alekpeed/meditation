@@ -36,6 +36,8 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val sounds: StateFlow<List<SoundAsset>> = container.soundRepository.all
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val attributions = container.soundRepository.attributions
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val sessionCount = container.historyRepository.count
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
     val totalActiveMs = container.historyRepository.totalActiveMs
@@ -108,6 +110,22 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     }
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
+
+    // Preview (isolated from any active session).
+    fun previewSound(soundId: String, volume: Double = 0.8) = container.controller.previewSound(soundId, volume)
+    fun previewMix(layers: List<Pair<String, Double>>) = container.controller.previewMix(layers)
+    fun stopPreview() = container.controller.stopPreview()
+
+    // Export uses the pure core formatter; the caller writes the returned bytes to a SAF document.
+    fun exportJson(): String = com.meditation.core.HistoryExport.toJson(history.value)
+    fun exportCsv(): String = com.meditation.core.HistoryExport.toCsv(history.value)
+
+    // Import an audio file the user selected via the Storage Access Framework.
+    fun importAudio(context: android.content.Context, uri: android.net.Uri, displayName: String) =
+        viewModelScope.launch { container.soundRepository.importFromUri(context, uri, displayName) }
+
+    fun validationErrors(preset: SessionPreset): List<String> =
+        com.meditation.core.PresetValidation.validate(preset)
 
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

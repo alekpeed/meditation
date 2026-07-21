@@ -36,10 +36,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.meditation.app.MeditationApp
 import com.meditation.app.ui.screen.ActiveTimerScreen
 import com.meditation.app.ui.screen.HistoryScreen
 import com.meditation.app.ui.screen.HomeScreen
+import com.meditation.app.ui.screen.SessionBuilderScreen
 import com.meditation.app.ui.screen.SessionsScreen
 import com.meditation.app.ui.screen.SettingsScreen
 import com.meditation.app.ui.screen.SoundsScreen
@@ -114,10 +116,26 @@ private fun RootScaffold(vm: MeditationViewModel) {
             modifier = Modifier.padding(padding),
         ) {
             composable(Dest.Home.route) { HomeScreen(vm) }
-            composable(Dest.Sessions.route) { SessionsScreen(vm) }
+            composable(Dest.Sessions.route) {
+                SessionsScreen(
+                    vm,
+                    onCreate = { navController.navigate("builder") },
+                    onEdit = { id -> navController.navigate("builder?presetId=$id") },
+                )
+            }
             composable(Dest.Sounds.route) { SoundsScreen(vm) }
             composable(Dest.History.route) { HistoryScreen(vm) }
             composable(Dest.Settings.route) { SettingsScreen(vm) }
+            composable(
+                route = "builder?presetId={presetId}",
+                arguments = listOf(navArgument("presetId") { nullable = true; defaultValue = null }),
+            ) { entry ->
+                SessionBuilderScreen(
+                    vm = vm,
+                    presetId = entry.arguments?.getString("presetId"),
+                    onDone = { navController.popBackStack() },
+                )
+            }
         }
     }
 
