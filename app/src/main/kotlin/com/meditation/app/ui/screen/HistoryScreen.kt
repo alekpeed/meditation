@@ -1,5 +1,6 @@
 package com.meditation.app.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +29,7 @@ import com.meditation.app.ui.MeditationViewModel
 import com.meditation.core.CompletionStatus
 
 @Composable
-fun HistoryScreen(vm: MeditationViewModel) {
+fun HistoryScreen(vm: MeditationViewModel, onOpen: (String) -> Unit = {}) {
     val history by vm.history.collectAsStateWithLifecycle()
     val count by vm.sessionCount.collectAsStateWithLifecycle()
     val totalMs by vm.totalActiveMs.collectAsStateWithLifecycle()
@@ -54,7 +55,7 @@ fun HistoryScreen(vm: MeditationViewModel) {
         Spacer(Modifier.height(16.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(history, key = { it.sessionId }) { entry ->
-                Card(Modifier.fillMaxWidth()) {
+                Card(Modifier.fillMaxWidth().clickable { onOpen(entry.sessionId) }) {
                     Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(entry.presetName, style = MaterialTheme.typography.titleMedium)

@@ -21,9 +21,11 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -99,7 +101,7 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
     }
     if (showFinish) FinishDialog(
         onDismiss = { showFinish = false },
-        onSave = { vm.finish(cancelled = false); showFinish = false },
+        onSave = { note, tags, mood -> vm.finish(cancelled = false, note = note, tags = tags, moodAfter = mood); showFinish = false },
         onDiscard = { vm.finish(cancelled = true); showFinish = false },
     )
 }
@@ -214,12 +216,41 @@ private fun AddTimeDialog(onDismiss: () -> Unit, onAdd: (Int) -> Unit) {
 }
 
 @Composable
-private fun FinishDialog(onDismiss: () -> Unit, onSave: () -> Unit, onDiscard: () -> Unit) {
+private fun FinishDialog(
+    onDismiss: () -> Unit,
+    onSave: (note: String?, tags: List<String>, mood: Int?) -> Unit,
+    onDiscard: () -> Unit,
+) {
+    var mood by remember { mutableStateOf(0) } // 0 = unset
+    var note by remember { mutableStateOf("") }
+    var tags by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Finish session?") },
-        text = { Text("Save this session to your history, or discard it.") },
-        confirmButton = { Button(onClick = onSave) { Text("Finish & save") } },
+        text = {
+            Column {
+                Text("Mood after", style = MaterialTheme.typography.labelLarge)
+                Spacer(Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    (1..5).forEach { m ->
+                        FilterChip(selected = mood == m, onClick = { mood = if (mood == m) 0 else m }, label = { Text("$m") })
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(note, { note = it }, label = { Text("Note (optional)") }, modifier = Modifier.fillMaxWidth())
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(tags, { tags = it }, label = { Text("Tags (comma-separated)") }, modifier = Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(
+                    note.ifBlank { null },
+                    tags.split(",").map { it.trim() }.filter { it.isNotEmpty() },
+                    mood.takeIf { it > 0 },
+                )
+            }) { Text("Finish & save") }
+        },
         dismissButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onDiscard) { Text("Discard") }

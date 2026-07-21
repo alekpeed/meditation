@@ -91,12 +91,25 @@ class MeditationController(
         }
     }
 
-    fun finish(cancelled: Boolean = false) = scope.launch {
+    fun finish(
+        cancelled: Boolean = false,
+        note: String? = null,
+        tags: List<String> = emptyList(),
+        moodAfter: Int? = null,
+    ) = scope.launch {
         mutex.withLock {
             val s = state ?: return@withLock
+            // Stash the user's completion fields so onTerminal records them on the history entry.
+            pendingNote = note
+            pendingTags = tags
+            pendingMood = moodAfter
             applyResult(engine.finish(s, cancelled), isStart = false)
         }
     }
+
+    private var pendingNote: String? = null
+    private var pendingTags: List<String> = emptyList()
+    private var pendingMood: Int? = null
 
     // ---- Preview (isolated; safe to call during an active session) ------------------------
 
@@ -179,9 +192,15 @@ class MeditationController(
         alarms.cancel(terminal.sessionId)
         // Exactly one history record (dedup by session id at the DAO layer).
         if (terminal.terminal == TerminalKind.COMPLETED && !terminal.completionRecordCreated) {
-            historyRepo.record(buildCompletedSession(terminal, clock.wallClockMs()))
+            historyRepo.record(
+                buildCompletedSession(
+                    terminal, clock.wallClockMs(),
+                    note = pendingNote, tags = pendingTags, moodAfter = pendingMood,
+                ),
+            )
             notifications.showCompletion(terminal.preset.name)
         }
+        pendingNote = null; pendingTags = emptyList(); pendingMood = null
         activeRepo.clear()
         stopService()
         // Clear the active-session snapshot so the full-screen timer overlay dismisses and the UI

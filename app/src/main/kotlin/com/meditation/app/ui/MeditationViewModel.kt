@@ -107,7 +107,17 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun resume() = container.controller.resume()
     fun extend(minutes: Int) = container.controller.extendByMinutes(minutes)
     fun skip() = container.controller.skipStage()
-    fun finish(cancelled: Boolean) = container.controller.finish(cancelled)
+    fun finish(
+        cancelled: Boolean,
+        note: String? = null,
+        tags: List<String> = emptyList(),
+        moodAfter: Int? = null,
+    ) = container.controller.finish(cancelled, note, tags, moodAfter)
+
+    fun historyById(id: String): CompletedSession? = history.value.firstOrNull { it.sessionId == id }
+    fun updateHistory(id: String, note: String?, tags: List<String>, moodAfter: Int?) = viewModelScope.launch {
+        container.historyRepository.updateCompletionFields(id, note, tags, moodAfter)
+    }
 
     fun savePreset(preset: SessionPreset) = viewModelScope.launch {
         container.presetRepository.save(preset)

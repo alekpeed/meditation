@@ -41,6 +41,7 @@ import com.meditation.app.MeditationApp
 import com.meditation.app.ui.screen.ActiveTimerScreen
 import com.meditation.app.ui.screen.BreathingScreen
 import com.meditation.app.ui.screen.CounterScreen
+import com.meditation.app.ui.screen.HistoryDetailScreen
 import com.meditation.app.ui.screen.HistoryScreen
 import com.meditation.app.ui.screen.HomeScreen
 import com.meditation.app.ui.screen.SessionBuilderScreen
@@ -127,7 +128,9 @@ private fun RootScaffold(vm: MeditationViewModel) {
                 )
             }
             composable(Dest.Sounds.route) { SoundsScreen(vm) }
-            composable(Dest.History.route) { HistoryScreen(vm) }
+            composable(Dest.History.route) {
+                HistoryScreen(vm, onOpen = { id -> navController.navigate("history_detail/$id") })
+            }
             composable(Dest.Settings.route) { SettingsScreen(vm) }
             composable(
                 route = "builder?presetId={presetId}",
@@ -137,6 +140,13 @@ private fun RootScaffold(vm: MeditationViewModel) {
                     vm = vm,
                     presetId = entry.arguments?.getString("presetId"),
                     onDone = { navController.popBackStack() },
+                )
+            }
+            composable("history_detail/{id}") { entry ->
+                HistoryDetailScreen(
+                    vm = vm,
+                    sessionId = entry.arguments?.getString("id").orEmpty(),
+                    onBack = { navController.popBackStack() },
                 )
             }
             composable("statistics") { StatisticsScreen(vm, onBack = { navController.popBackStack() }) }
