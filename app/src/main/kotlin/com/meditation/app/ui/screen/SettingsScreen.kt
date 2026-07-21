@@ -80,6 +80,16 @@ fun SettingsScreen(vm: MeditationViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
+        SectionCard("Session") {
+            ToggleRow("Keep screen on", "Prevent the display from sleeping during a session.", prefs.keepScreenOn) {
+                vm.setKeepScreenOn(it)
+            }
+            ToggleRow("Reduced motion", "Turn off the breathing animation on the timer.", prefs.reducedMotion) {
+                vm.setReducedMotion(it)
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
         SectionCard("Background operation") {
             StatusRow("Notifications", if (notificationsOn) "Enabled" else "Disabled") {
                 context.startActivity(
@@ -205,6 +215,21 @@ private fun LabeledSlider(label: String, value: Float, onChange: (Float) -> Unit
     Column(Modifier.padding(vertical = 4.dp)) {
         Text("$label · ${(value * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium)
         Slider(value = value, onValueChange = onChange, valueRange = 0f..1f)
+    }
+}
+
+@Composable
+private fun ToggleRow(label: String, description: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f).padding(end = 12.dp)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        androidx.compose.material3.Switch(checked = checked, onCheckedChange = onChange)
     }
 }
 

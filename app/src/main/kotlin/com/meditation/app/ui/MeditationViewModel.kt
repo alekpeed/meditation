@@ -139,6 +139,8 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     }
     fun setTheme(mode: String) = viewModelScope.launch { container.preferencesRepository.setTheme(mode) }
     fun setPalette(palette: String) = viewModelScope.launch { container.preferencesRepository.setPalette(palette) }
+    fun setKeepScreenOn(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setKeepScreenOn(on) }
+    fun setReducedMotion(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setReducedMotion(on) }
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
     fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {

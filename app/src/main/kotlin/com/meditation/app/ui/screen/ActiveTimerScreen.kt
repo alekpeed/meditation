@@ -29,7 +29,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,9 +46,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meditation.app.ui.Format
 import com.meditation.app.ui.MeditationViewModel
 import com.meditation.core.SessionSnapshot
@@ -52,6 +60,25 @@ import com.meditation.core.SessionStatus
 fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
     var showAddTime by remember { mutableStateOf(false) }
     var showFinish by remember { mutableStateOf(false) }
+    val prefs by vm.preferences.collectAsStateWithLifecycle()
+
+    // Keep the display awake for the duration of the session when the user opted in.
+    val view = LocalView.current
+    DisposableEffect(prefs.keepScreenOn) {
+        if (prefs.keepScreenOn) view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
+
+    // A slow "breath" pulse behind the ring. rememberInfiniteTransition must run unconditionally;
+    // we simply ignore its value when reduced-motion is on or the session isn't running.
+    val transition = rememberInfiniteTransition(label = "breath")
+    val rawPulse by transition.animateFloat(
+        initialValue = 0.90f,
+        targetValue = 1.06f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 4200), RepeatMode.Reverse),
+        label = "breathScale",
+    )
+    val breathScale = if (!prefs.reducedMotion && snapshot.running) rawPulse else 1f
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Column(
@@ -71,7 +98,7 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
                 }
             }
 
-            ProgressRing(snapshot)
+            ProgressRing(snapshot, breathScale)
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 snapshot.nextIntervalInMs?.let {
@@ -107,7 +134,7 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
 }
 
 @Composable
-private fun ProgressRing(snapshot: SessionSnapshot) {
+private fun ProgressRing(snapshot: SessionSnapshot, breathScale: Float = 1f) {
     val countingUp = snapshot.status == SessionStatus.OVERTIME || snapshot.remainingMs <= 0
     val fraction = run {
         val remaining = snapshot.stageRemainingMs
@@ -127,6 +154,13 @@ private fun ProgressRing(snapshot: SessionSnapshot) {
             val inset = 14.dp.toPx()
             val arcSize = androidx.compose.ui.geometry.Size(size.width - inset, size.height - inset)
             val topLeft = Offset(inset / 2, inset / 2)
+            // Breathing glow: a faint filled disc that slowly expands/contracts inside the ring.
+            val baseRadius = (minOf(size.width, size.height) / 2f) - inset
+            drawCircle(
+                color = ringColor.copy(alpha = 0.07f),
+                radius = baseRadius * 0.72f * breathScale,
+                center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f),
+            )
             drawArc(trackColor, 0f, 360f, false, topLeft, arcSize, style = stroke)
             drawArc(ringColor, 0f, 360f * (if (countingUp) 1f else fraction), false, topLeft, arcSize, style = stroke)
         }
