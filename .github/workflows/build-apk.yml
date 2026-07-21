@@ -1,8 +1,8 @@
 name: Build APK
 
-# Builds a downloadable debug APK on GitHub's runners (which have the Android SDK
-# preinstalled and full network access). This also serves as the first real compile
-# of the :app module. Triggered on push to the working branch and manually.
+# Builds a downloadable debug APK on GitHub's runners (Android SDK preinstalled,
+# full network access) since the sandbox cannot reach dl.google.com. This is also
+# the first real compile of the :app module. Triggered on push and manually.
 on:
   workflow_dispatch:
   push:
@@ -24,19 +24,17 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle 8.11.1
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
-
-      - name: Regenerate a valid Gradle wrapper
+      # The runner ships Gradle 9.x (too new for AGP 8.7.3). Use it only to write a
+      # valid wrapper pinned to 8.11.1, then build through that wrapper. This also
+      # replaces the placeholder wrapper jar with a checksum-valid one.
+      - name: Bootstrap Gradle 8.11.1 wrapper
         run: gradle wrapper --gradle-version 8.11.1 --distribution-type bin
 
-      - name: Run core unit tests
-        run: gradle :core:test --stacktrace --no-daemon
+      - name: Core unit tests
+        run: ./gradlew :core:test --stacktrace --no-daemon
 
       - name: Assemble debug APK
-        run: gradle :app:assembleDebug --stacktrace --no-daemon
+        run: ./gradlew :app:assembleDebug --stacktrace --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
