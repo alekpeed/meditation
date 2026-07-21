@@ -126,7 +126,7 @@ class AudioController(
                 val exo = ExoPlayer.Builder(context).build().apply {
                     repeatMode = if (loop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
                     setMediaItem(MediaItem.fromUri(uri))
-                    volume = vol
+                    this.volume = vol // qualify: the function's `volume: Double` param shadows it otherwise
                     prepare(); play()
                 }
                 previewExos[soundId] = exo
