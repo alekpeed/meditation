@@ -64,6 +64,18 @@ class SoundRepository(private val dao: SoundDao, private val attributionDao: Att
     }
 
     /**
+     * Insert any catalog sounds/attributions not already present, without touching existing rows
+     * (so user favorites survive). This is how new bundled/generated sounds — e.g. binaural beats
+     * added in an update — reach installs that were seeded before the entry existed.
+     */
+    suspend fun seedMissing(context: Context) {
+        val newSounds = AssetCatalog.loadSounds(context).filter { dao.byId(it.id) == null }
+        if (newSounds.isNotEmpty()) dao.upsertAll(newSounds)
+        val newAttrs = AssetCatalog.loadAttributions(context).filter { attributionDao.byId(it.id) == null }
+        if (newAttrs.isNotEmpty()) attributionDao.upsertAll(newAttrs)
+    }
+
+    /**
      * Copy a user-selected audio file into app-private storage and register it as an imported sound.
      * The file is copied (not merely referenced) so it survives even if the original URI is revoked;
      * nothing is ever uploaded (brief §9.4, §22). Returns the new sound id, or null on failure.

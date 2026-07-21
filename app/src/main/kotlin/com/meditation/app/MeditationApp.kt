@@ -33,6 +33,7 @@ class MeditationApp : Application() {
         // Seed the bundled sound catalog and reconstruct any in-flight session after cold start.
         container.scope.launch {
             container.soundRepository.seedIfEmpty(this@MeditationApp)
+            container.soundRepository.seedMissing(this@MeditationApp)
             // Re-arm the daily reminder (alarms do not survive reboot/reinstall).
             val prefs = container.preferencesRepository.preferences.first()
             if (prefs.reminderEnabled) {

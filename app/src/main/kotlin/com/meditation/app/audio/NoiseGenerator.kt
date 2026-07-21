@@ -4,6 +4,7 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
+import com.meditation.core.Binaural
 import com.meditation.core.GeneratorConfig
 import kotlin.concurrent.thread
 import kotlin.math.PI
@@ -26,17 +27,23 @@ class NoiseGenerator(private val config: GeneratorConfig) {
 
     fun setGain(value: Double) { gain = value.toFloat().coerceIn(0f, 1f) }
 
+    // Binaural beats need a different tone per ear, so that one type streams stereo; everything
+    // else stays mono (identical to before).
+    private val stereo = config.type == "binaural"
+
     fun start() {
         if (running) return
         running = true
+        val channelMask = if (stereo) AudioFormat.CHANNEL_OUT_STEREO else AudioFormat.CHANNEL_OUT_MONO
+        val channels = if (stereo) 2 else 1
         val minBuf = AudioTrack.getMinBufferSize(
-            sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_FLOAT,
+            sampleRate, channelMask, AudioFormat.ENCODING_PCM_FLOAT,
         ).coerceAtLeast(4096)
         // Give the track several buffers of headroom so a GC pause or scheduling hiccup can't
         // starve it mid-stream — a shallow (minimum-size) buffer is what makes streamed noise
         // click and "break up". We generate in small chunks but keep the pipe deep.
         val trackBytes = (minBuf * 4).coerceAtLeast(32_768)
-        val chunkFloats = (minBuf / 4).coerceAtLeast(1024)
+        val framesPerChunk = (minBuf / 4 / channels).coerceAtLeast(1024)
 
         val at = AudioTrack.Builder()
             .setAudioAttributes(
@@ -49,7 +56,7 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                 AudioFormat.Builder()
                     .setEncoding(AudioFormat.ENCODING_PCM_FLOAT)
                     .setSampleRate(sampleRate)
-                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .setChannelMask(channelMask)
                     .build(),
             )
             .setBufferSizeInBytes(trackBytes)
@@ -61,7 +68,13 @@ class NoiseGenerator(private val config: GeneratorConfig) {
         worker = thread(name = "noise-${config.type}", isDaemon = true) {
             // Run at audio priority so the OS won't preempt us and underrun the track.
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO)
-            val buffer = FloatArray(chunkFloats)
+
+            if (stereo) {
+                streamBinaural(framesPerChunk)
+                return@thread
+            }
+
+            val buffer = FloatArray(framesPerChunk)
             // Filter/oscillator state kept across buffers so there are no seams between writes.
             var b0 = 0.0; var b1 = 0.0; var b2 = 0.0; var b3 = 0.0; var b4 = 0.0; var b5 = 0.0; var b6 = 0.0
             var brown = 0.0
@@ -130,6 +143,30 @@ class NoiseGenerator(private val config: GeneratorConfig) {
         runCatching { track?.pause(); track?.flush(); track?.stop() }
         runCatching { track?.release() }
         track = null
+    }
+
+    /** Streams two pure tones — one per ear — whose difference is the binaural beat. */
+    private fun streamBinaural(framesPerChunk: Int) {
+        val (fL, fR) = Binaural.earFrequencies(
+            carrierHz = config.frequencyHz ?: 200.0,
+            beatHz = config.secondFrequencyHz ?: 6.0,
+        )
+        val incL = 2 * PI * fL / sampleRate
+        val incR = 2 * PI * fR / sampleRate
+        val buffer = FloatArray(framesPerChunk * 2)
+        var phL = 0.0
+        var phR = 0.0
+        while (running) {
+            var j = 0
+            for (f in 0 until framesPerChunk) {
+                phL += incL; if (phL > 2 * PI) phL -= 2 * PI
+                phR += incR; if (phR > 2 * PI) phR -= 2 * PI
+                buffer[j++] = tanh(sin(phL) * gain).toFloat()
+                buffer[j++] = tanh(sin(phR) * gain).toFloat()
+            }
+            val t = track ?: break
+            t.write(buffer, 0, buffer.size, AudioTrack.WRITE_BLOCKING)
+        }
     }
 
     private fun whiteSample(): Float = (Random.nextFloat() * 2f - 1f)
