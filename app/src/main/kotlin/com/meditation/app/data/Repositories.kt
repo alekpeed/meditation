@@ -8,6 +8,7 @@ import com.meditation.core.SessionPreset
 import com.meditation.core.SoundAsset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
 
 class PresetRepository(private val dao: PresetDao) {
     val all: Flow<List<SessionPreset>> = dao.observeAll().map { it.map(PresetEntity::toDomain) }

@@ -3,6 +3,7 @@ package com.meditation.app.data
 import android.content.Context
 import com.meditation.core.GeneratorConfig
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 
 /**
  * DTOs for the bundled JSON manifests in assets/metadata. Kept separate from the domain model

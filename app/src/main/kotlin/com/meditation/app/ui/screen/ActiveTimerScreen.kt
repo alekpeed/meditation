@@ -85,7 +85,9 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
                     onPauseResume = { if (snapshot.running) vm.pause() else vm.resume() },
                     onAddTime = { showAddTime = true },
                     onFinish = { showFinish = true },
-                    onSkip = vm::skip.takeIf { snapshot.stageCount > 1 && snapshot.stageIndex < snapshot.stageCount - 1 },
+                    onSkip = if (snapshot.stageCount > 1 && snapshot.stageIndex < snapshot.stageCount - 1) {
+                        { vm.skip() }
+                    } else null,
                 )
                 Spacer(Modifier.height(24.dp))
             }
