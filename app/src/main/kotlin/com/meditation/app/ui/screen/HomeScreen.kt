@@ -34,7 +34,7 @@ import com.meditation.core.SoundCategory
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun HomeScreen(vm: MeditationViewModel) {
+fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
     val prefs by vm.preferences.collectAsStateWithLifecycle()
     val favorites by vm.favorites.collectAsStateWithLifecycle()
     val history by vm.history.collectAsStateWithLifecycle()
@@ -119,6 +119,15 @@ fun HomeScreen(vm: MeditationViewModel) {
                     }
                 }
             }
+        }
+
+        Spacer(Modifier.height(20.dp))
+        Text("Practices", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.OutlinedButton(onClick = { onNavigate("breathing") }, modifier = Modifier.weight(1f)) { Text("Breathe") }
+            androidx.compose.material3.OutlinedButton(onClick = { onNavigate("counter") }, modifier = Modifier.weight(1f)) { Text("Counter") }
+            androidx.compose.material3.OutlinedButton(onClick = { onNavigate("statistics") }, modifier = Modifier.weight(1f)) { Text("Stats") }
         }
 
         history.firstOrNull()?.let { recent ->

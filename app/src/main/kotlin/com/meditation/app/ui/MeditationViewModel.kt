@@ -14,6 +14,7 @@ import com.meditation.core.SoundAsset
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -44,6 +45,14 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
     val preferences: StateFlow<UserPreferences> = container.preferencesRepository.preferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferences())
+
+    val statistics: StateFlow<com.meditation.core.Statistics> = container.historyRepository.all
+        .map { list ->
+            val now = System.currentTimeMillis()
+            val tz = java.util.TimeZone.getDefault().getOffset(now).toLong()
+            com.meditation.core.Stats.compute(list, now, tz)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.meditation.core.Statistics(0, 0, 0, 0, 0, 0, 0, 0))
 
     init {
         // Drive a lightweight display refresh while a session is active and the app is visible.

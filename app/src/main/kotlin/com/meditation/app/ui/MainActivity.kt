@@ -39,12 +39,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.meditation.app.MeditationApp
 import com.meditation.app.ui.screen.ActiveTimerScreen
+import com.meditation.app.ui.screen.BreathingScreen
+import com.meditation.app.ui.screen.CounterScreen
 import com.meditation.app.ui.screen.HistoryScreen
 import com.meditation.app.ui.screen.HomeScreen
 import com.meditation.app.ui.screen.SessionBuilderScreen
 import com.meditation.app.ui.screen.SessionsScreen
 import com.meditation.app.ui.screen.SettingsScreen
 import com.meditation.app.ui.screen.SoundsScreen
+import com.meditation.app.ui.screen.StatisticsScreen
 import com.meditation.app.ui.theme.MeditationTheme
 
 class MainActivity : ComponentActivity() {
@@ -115,7 +118,7 @@ private fun RootScaffold(vm: MeditationViewModel) {
             startDestination = Dest.Home.route,
             modifier = Modifier.padding(padding),
         ) {
-            composable(Dest.Home.route) { HomeScreen(vm) }
+            composable(Dest.Home.route) { HomeScreen(vm, onNavigate = { navController.navigate(it) }) }
             composable(Dest.Sessions.route) {
                 SessionsScreen(
                     vm,
@@ -136,6 +139,9 @@ private fun RootScaffold(vm: MeditationViewModel) {
                     onDone = { navController.popBackStack() },
                 )
             }
+            composable("statistics") { StatisticsScreen(vm, onBack = { navController.popBackStack() }) }
+            composable("breathing") { BreathingScreen(onBack = { navController.popBackStack() }) }
+            composable("counter") { CounterScreen(onBack = { navController.popBackStack() }) }
         }
     }
 
