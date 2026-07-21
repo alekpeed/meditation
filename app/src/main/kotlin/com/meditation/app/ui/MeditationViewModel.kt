@@ -119,6 +119,10 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     }
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
+    fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {
+        container.preferencesRepository.setReminder(enabled, hour, minute)
+        if (enabled) container.reminderScheduler.schedule(hour, minute) else container.reminderScheduler.cancel()
+    }
 
     // Preview (isolated from any active session).
     fun previewSound(soundId: String, volume: Double = 0.8) = container.controller.previewSound(soundId, volume)

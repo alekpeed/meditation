@@ -13,4 +13,9 @@
 
     <string name="notif_session_title">Meditation in progress</string>
     <string name="notif_complete_title">Session complete</string>
+
+    <string name="channel_reminder_name">Daily Reminder</string>
+    <string name="channel_reminder_desc">Gentle daily nudge to meditate</string>
+    <string name="notif_reminder_title">Time to meditate</string>
+    <string name="notif_reminder_text">Take a few minutes to sit.</string>
 </resources>

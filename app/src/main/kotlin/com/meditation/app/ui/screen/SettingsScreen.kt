@@ -79,6 +79,30 @@ fun SettingsScreen(vm: MeditationViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
+        SectionCard("Reminders") {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("Daily reminder", style = MaterialTheme.typography.bodyLarge)
+                androidx.compose.material3.Switch(
+                    checked = prefs.reminderEnabled,
+                    onCheckedChange = { vm.setReminder(it, prefs.reminderHour, prefs.reminderMinute) },
+                )
+            }
+            if (prefs.reminderEnabled) {
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Time", style = MaterialTheme.typography.bodyLarge)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick = { vm.setReminder(true, (prefs.reminderHour + 23) % 24, prefs.reminderMinute) }) { Text("−h") }
+                        Text(String.format(java.util.Locale.US, "%02d:%02d", prefs.reminderHour, prefs.reminderMinute), style = MaterialTheme.typography.titleMedium)
+                        TextButton(onClick = { vm.setReminder(true, (prefs.reminderHour + 1) % 24, prefs.reminderMinute) }) { Text("+h") }
+                        TextButton(onClick = { vm.setReminder(true, prefs.reminderHour, (prefs.reminderMinute + 45) % 60) }) { Text("−m") }
+                        TextButton(onClick = { vm.setReminder(true, prefs.reminderHour, (prefs.reminderMinute + 15) % 60) }) { Text("+m") }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
         val exportJson = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
             if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(vm.exportJson().toByteArray()) }
         }

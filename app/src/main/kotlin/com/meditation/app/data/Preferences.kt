@@ -28,6 +28,9 @@ data class UserPreferences(
     val theme: String = "system",
     val reducedMotion: Boolean = false,
     val keepScreenOn: Boolean = false,
+    val reminderEnabled: Boolean = false,
+    val reminderHour: Int = 8,
+    val reminderMinute: Int = 0,
 ) {
     val volumes get() = VolumeSettings(bellVolume, ambienceVolume)
 }
@@ -46,7 +49,16 @@ class PreferencesRepository(private val context: Context) {
             theme = p[Keys.theme] ?: "system",
             reducedMotion = (p[Keys.reducedMotion] ?: 0) == 1,
             keepScreenOn = (p[Keys.keepScreenOn] ?: 0) == 1,
+            reminderEnabled = (p[Keys.reminderEnabled] ?: 0) == 1,
+            reminderHour = p[Keys.reminderHour] ?: 8,
+            reminderMinute = p[Keys.reminderMinute] ?: 0,
         )
+    }
+
+    suspend fun setReminder(enabled: Boolean, hour: Int, minute: Int) = edit {
+        it[Keys.reminderEnabled] = if (enabled) 1 else 0
+        it[Keys.reminderHour] = hour
+        it[Keys.reminderMinute] = minute
     }
 
     suspend fun setBellVolume(v: Double) = edit { it[Keys.bellVolume] = v }
@@ -75,5 +87,8 @@ class PreferencesRepository(private val context: Context) {
         val theme = stringPreferencesKey("theme")
         val reducedMotion = intPreferencesKey("reduced_motion")
         val keepScreenOn = intPreferencesKey("keep_screen_on")
+        val reminderEnabled = intPreferencesKey("reminder_enabled")
+        val reminderHour = intPreferencesKey("reminder_hour")
+        val reminderMinute = intPreferencesKey("reminder_minute")
     }
 }

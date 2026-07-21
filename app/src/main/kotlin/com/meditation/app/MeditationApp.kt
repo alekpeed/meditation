@@ -3,6 +3,8 @@ package com.meditation.app
 import android.app.Application
 import android.content.Context
 import com.meditation.app.alarm.AlarmScheduler
+import com.meditation.app.alarm.ReminderScheduler
+import kotlinx.coroutines.flow.first
 import com.meditation.app.audio.AudioController
 import com.meditation.app.data.ActiveSessionRepository
 import com.meditation.app.data.HistoryRepository
@@ -31,6 +33,11 @@ class MeditationApp : Application() {
         // Seed the bundled sound catalog and reconstruct any in-flight session after cold start.
         container.scope.launch {
             container.soundRepository.seedIfEmpty(this@MeditationApp)
+            // Re-arm the daily reminder (alarms do not survive reboot/reinstall).
+            val prefs = container.preferencesRepository.preferences.first()
+            if (prefs.reminderEnabled) {
+                container.reminderScheduler.schedule(prefs.reminderHour, prefs.reminderMinute)
+            }
         }
         container.controller.restore()
     }
@@ -59,6 +66,7 @@ class AppContainer(app: Application) {
 
     val notifications = NotificationController(app)
     private val alarms = AlarmScheduler(app)
+    val reminderScheduler = ReminderScheduler(app)
     val audio = AudioController(app, scope, soundRepository)
 
     val controller = MeditationController(

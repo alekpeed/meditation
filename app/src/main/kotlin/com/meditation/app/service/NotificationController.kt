@@ -40,8 +40,25 @@ class NotificationController(private val context: Context) {
             context.getString(R.string.channel_completion_name),
             NotificationManager.IMPORTANCE_DEFAULT,
         ).apply { description = context.getString(R.string.channel_completion_desc) }
+        val reminder = NotificationChannel(
+            CHANNEL_REMINDER,
+            context.getString(R.string.channel_reminder_name),
+            NotificationManager.IMPORTANCE_DEFAULT,
+        ).apply { description = context.getString(R.string.channel_reminder_desc) }
         manager.createNotificationChannel(session)
         manager.createNotificationChannel(completion)
+        manager.createNotificationChannel(reminder)
+    }
+
+    fun showReminder() {
+        val n = NotificationCompat.Builder(context, CHANNEL_REMINDER)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notif_reminder_title))
+            .setContentText(context.getString(R.string.notif_reminder_text))
+            .setContentIntent(openAppIntent())
+            .setAutoCancel(true)
+            .build()
+        manager.notify(REMINDER_ID, n)
     }
 
     fun buildOngoing(snapshot: SessionSnapshot?): Notification {
@@ -133,7 +150,9 @@ class NotificationController(private val context: Context) {
     companion object {
         const val CHANNEL_SESSION = "session"
         const val CHANNEL_COMPLETION = "completion"
+        const val CHANNEL_REMINDER = "reminder"
         const val ONGOING_ID = 1001
         const val COMPLETION_ID = 1002
+        const val REMINDER_ID = 1003
     }
 }
