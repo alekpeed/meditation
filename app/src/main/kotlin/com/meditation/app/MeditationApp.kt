@@ -70,5 +70,6 @@ class AppContainer(app: Application) {
         prefs = preferencesRepository,
         audio = audio,
         alarms = alarms,
+        notifications = notifications,
     )
 }

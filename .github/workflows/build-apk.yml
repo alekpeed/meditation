@@ -42,11 +42,3 @@ jobs:
           name: meditation-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-
-      - name: Upload regenerated wrapper jar
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gradle-wrapper-jar
-          path: gradle/wrapper/gradle-wrapper.jar
-          if-no-files-found: warn

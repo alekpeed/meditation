@@ -12,6 +12,10 @@ import com.meditation.core.SoundSourceType
 import com.meditation.core.SessionSnapshot
 import com.meditation.core.VolumeSettings
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Facade over all playback: short strikes ([BellPlayer]), recorded ambience loops ([AmbiencePlayer]),
@@ -31,7 +35,9 @@ class AudioController(
     private val focus = AudioFocusManager(context)
     private val recorded = LinkedHashMap<String, AmbiencePlayer>() // soundId -> player, max 3
     private val generated = LinkedHashMap<String, NoiseGenerator>() // soundId -> generator
-    private val playerFactory = { AmbiencePlayer(context, scope) }
+    private val playerFactory = { AmbiencePlayer(context) }
+    // ExoPlayer (preview + ambience) must be touched only on the main thread.
+    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var masterAmbience = 0.6f
     private var focusHeld = false
 
@@ -114,21 +120,24 @@ class AudioController(
             }
         } else {
             val uri = asset.fileUri ?: return
-            val exo = ExoPlayer.Builder(context).build().apply {
-                // Loop long ambience so the preview is audible; short strikes end naturally.
-                repeatMode = if (asset.durationMs != null && asset.durationMs!! < 4000)
-                    Player.REPEAT_MODE_OFF else Player.REPEAT_MODE_ONE
-                setMediaItem(MediaItem.fromUri(uri))
-                this.volume = vol
-                prepare(); play()
+            val loop = !(asset.durationMs != null && asset.durationMs!! < 4000)
+            // ExoPlayer must be created and controlled on the main thread.
+            withContext(Dispatchers.Main) {
+                val exo = ExoPlayer.Builder(context).build().apply {
+                    repeatMode = if (loop) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                    setMediaItem(MediaItem.fromUri(uri))
+                    volume = vol
+                    prepare(); play()
+                }
+                previewExos[soundId] = exo
             }
-            previewExos[soundId] = exo
         }
     }
 
     fun stopPreview() {
-        previewExos.values.forEach { runCatching { it.release() } }
+        val exos = previewExos.values.toList()
         previewExos.clear()
+        if (exos.isNotEmpty()) mainScope.launch { exos.forEach { runCatching { it.release() } } }
         previewNoises.values.forEach { it.stop() }
         previewNoises.clear()
     }

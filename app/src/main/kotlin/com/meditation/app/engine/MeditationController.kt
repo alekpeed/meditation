@@ -9,12 +9,14 @@ import com.meditation.app.data.ActiveSessionRepository
 import com.meditation.app.data.HistoryRepository
 import com.meditation.app.data.PreferencesRepository
 import com.meditation.app.service.MeditationService
+import com.meditation.app.service.NotificationController
 import com.meditation.core.ActiveSessionState
 import com.meditation.core.AdvanceResult
 import com.meditation.core.SessionEngine
 import com.meditation.core.SessionPreset
 import com.meditation.core.SessionSnapshot
 import com.meditation.core.SoundEvent
+import com.meditation.core.TerminalKind
 import com.meditation.core.buildCompletedSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -44,6 +46,7 @@ class MeditationController(
     private val prefs: PreferencesRepository,
     private val audio: AudioController,
     private val alarms: AlarmScheduler,
+    private val notifications: NotificationController,
     private val clock: com.meditation.core.Clock = AndroidClock,
 ) {
     private val mutex = Mutex()
@@ -175,11 +178,16 @@ class MeditationController(
         audio.stopAll()
         alarms.cancel(terminal.sessionId)
         // Exactly one history record (dedup by session id at the DAO layer).
-        if (!terminal.completionRecordCreated) {
+        if (terminal.terminal == TerminalKind.COMPLETED && !terminal.completionRecordCreated) {
             historyRepo.record(buildCompletedSession(terminal, clock.wallClockMs()))
+            notifications.showCompletion(terminal.preset.name)
         }
         activeRepo.clear()
         stopService()
+        // Clear the active-session snapshot so the full-screen timer overlay dismisses and the UI
+        // returns to normal navigation. Without this the finished session stays on screen forever.
+        state = null
+        _snapshot.value = null
     }
 
     private fun startLoop() {

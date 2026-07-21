@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
@@ -76,7 +77,10 @@ fun SessionBuilderScreen(vm: MeditationViewModel, presetId: String?, onDone: () 
     }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text(if (existing == null) "New preset" else "Edit preset", style = MaterialTheme.typography.headlineSmall)
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            IconButton(onClick = onDone) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+            Text(if (existing == null) "New preset" else "Edit preset", style = MaterialTheme.typography.headlineSmall)
+        }
         Spacer(Modifier.height(12.dp))
 
         SectionCardB("Basic details") {

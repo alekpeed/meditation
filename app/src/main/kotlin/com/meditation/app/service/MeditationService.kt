@@ -34,12 +34,9 @@ class MeditationService : LifecycleService() {
         // Render controller state; stop cleanly when the session ends or is cleared.
         lifecycleScope.launch {
             container.controller.snapshot.collectLatest { snap ->
-                if (snap == null) {
-                    stopSelfSafely()
-                } else if (!snap.running && snap.status == SessionStatus.COMPLETED) {
-                    notifications.showCompletion(snap.presetName)
-                    stopSelfSafely()
-                } else if (snap.status == SessionStatus.CANCELLED) {
+                // The controller posts the completion notification and clears state on terminal;
+                // the service just renders active state and stops when the session is gone.
+                if (snap == null || snap.status == SessionStatus.COMPLETED || snap.status == SessionStatus.CANCELLED) {
                     stopSelfSafely()
                 } else {
                     notifications.update(snap)
