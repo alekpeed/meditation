@@ -7,6 +7,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.meditation.app.data.SoundRepository
 import com.meditation.core.ActiveSessionState
+import com.meditation.core.SoundAsset
 import com.meditation.core.SoundEvent
 import com.meditation.core.SoundSourceType
 import com.meditation.core.SessionSnapshot
@@ -32,6 +33,8 @@ class AudioController(
     private val sounds: SoundRepository,
 ) {
     private val bells = BellPlayer(context, scope)
+    private val synth = ToneSynth() // procedural fallback when a strike sound has no bundled file
+    private val fileExistsCache = HashMap<String, Boolean>()
     private val focus = AudioFocusManager(context)
     private val recorded = LinkedHashMap<String, AmbiencePlayer>() // soundId -> player, max 3
     private val generated = LinkedHashMap<String, NoiseGenerator>() // soundId -> generator
@@ -58,7 +61,27 @@ class AudioController(
             val id = event.soundId ?: continue
             val asset = sounds.byId(id) ?: continue
             val vol = (volumes.bellVolume * asset.defaultVolume).toFloat().coerceIn(0f, 1f)
-            bells.play(id, asset.fileUri, vol, event.strikeCount, event.strikeSpacingMs)
+            if (hasBundledFile(asset)) {
+                bells.play(id, asset.fileUri, vol, event.strikeCount, event.strikeSpacingMs)
+            } else {
+                // No recording bundled: synthesize the strike so the bell is still audible.
+                synth.strike(asset, vol, event.strikeCount, event.strikeSpacingMs)
+            }
+        }
+    }
+
+    /** Whether a real audio file exists for this asset (bundled in assets/ or an imported file). */
+    private fun hasBundledFile(asset: SoundAsset): Boolean {
+        val uri = asset.fileUri ?: return false
+        return fileExistsCache.getOrPut(uri) {
+            when {
+                uri.startsWith("file:///android_asset/") -> runCatching {
+                    context.assets.open(uri.removePrefix("file:///android_asset/")).close(); true
+                }.getOrDefault(false)
+                else -> runCatching {
+                    java.io.File(android.net.Uri.parse(uri).path ?: return@runCatching false).exists()
+                }.getOrDefault(false)
+            }
         }
     }
 
@@ -118,6 +141,10 @@ class AudioController(
             previewNoises[soundId] = NoiseGenerator(asset.generatorConfig!!).apply {
                 setGain(vol.toDouble()); start()
             }
+        } else if (!hasBundledFile(asset)) {
+            // No recording: synthesize strike voices (bells/bowls/gongs/wood/chime). Ambience
+            // recordings without a file stay silent (their generated counterparts do play).
+            if (synth.canVoice(asset.category)) synth.strike(asset, vol, 1, 0)
         } else {
             val uri = asset.fileUri ?: return
             val loop = !(asset.durationMs != null && asset.durationMs!! < 4000)
