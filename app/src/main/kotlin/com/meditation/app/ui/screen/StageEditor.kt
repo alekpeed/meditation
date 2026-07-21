@@ -59,10 +59,14 @@ fun StageEditorDialog(
     var openingId by remember { mutableStateOf(stage.openingSoundId) }
     var closingId by remember { mutableStateOf(stage.closingSoundId) }
 
-    val existingInterval = stage.intervalPlan as? IntervalPlan.EveryXMinutes
-    var intervalOn by remember { mutableStateOf(existingInterval != null) }
-    var intervalMinutes by remember { mutableStateOf(((existingInterval?.intervalMs ?: 300_000) / 60_000).toString()) }
-    var intervalSoundId by remember { mutableStateOf(existingInterval?.soundId) }
+    val existingEvery = stage.intervalPlan as? IntervalPlan.EveryXMinutes
+    val existingRandom = stage.intervalPlan as? IntervalPlan.Random
+    var intervalOn by remember { mutableStateOf(stage.intervalPlan !is IntervalPlan.None) }
+    var intervalRandom by remember { mutableStateOf(existingRandom != null) }
+    var intervalMinutes by remember { mutableStateOf(((existingEvery?.intervalMs ?: 300_000) / 60_000).toString()) }
+    var minMinutes by remember { mutableStateOf(((existingRandom?.minIntervalMs ?: 180_000) / 60_000).toString()) }
+    var maxMinutes by remember { mutableStateOf(((existingRandom?.maxIntervalMs ?: 420_000) / 60_000).toString()) }
+    var intervalSoundId by remember { mutableStateOf(existingEvery?.soundId ?: existingRandom?.soundId) }
 
     val layers: SnapshotStateList<AmbienceLayer> = remember { stage.ambienceLayers.toMutableStateList() }
 
@@ -103,12 +107,33 @@ fun StageEditorDialog(
                     Switch(checked = intervalOn, onCheckedChange = { intervalOn = it })
                 }
                 if (intervalOn) {
-                    OutlinedTextField(
-                        intervalMinutes, { intervalMinutes = it.filter(Char::isDigit) },
-                        label = { Text("Every (minutes)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text("Random spacing")
+                        Switch(checked = intervalRandom, onCheckedChange = { intervalRandom = it })
+                    }
+                    if (intervalRandom) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedTextField(
+                                minMinutes, { minMinutes = it.filter(Char::isDigit) },
+                                label = { Text("Min (min)") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f),
+                            )
+                            OutlinedTextField(
+                                maxMinutes, { maxMinutes = it.filter(Char::isDigit) },
+                                label = { Text("Max (min)") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    } else {
+                        OutlinedTextField(
+                            intervalMinutes, { intervalMinutes = it.filter(Char::isDigit) },
+                            label = { Text("Every (minutes)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                     Spacer(Modifier.height(8.dp))
                     SoundPicker("Interval sound", SoundRole.INTERVAL, sounds, intervalSoundId, { intervalSoundId = it })
                 }
@@ -147,9 +172,16 @@ fun StageEditorDialog(
         confirmButton = {
             TextButton(onClick = {
                 val duration = if (openEnded) null else (minutes.toLongOrNull() ?: 5) * 60_000
-                val plan = if (intervalOn && intervalSoundId != null)
-                    IntervalPlan.EveryXMinutes((intervalMinutes.toLongOrNull() ?: 5) * 60_000, intervalSoundId!!)
-                else IntervalPlan.None
+                val plan = when {
+                    !intervalOn || intervalSoundId == null -> IntervalPlan.None
+                    intervalRandom -> {
+                        val minMs = (minMinutes.toLongOrNull() ?: 3) * 60_000
+                        val maxMs = ((maxMinutes.toLongOrNull() ?: 7) * 60_000).coerceAtLeast(minMs)
+                        // Deterministic seed from the stage id keeps the sequence stable across restarts.
+                        IntervalPlan.Random(minMs, maxMs, intervalSoundId!!, seed = stage.id.hashCode().toLong())
+                    }
+                    else -> IntervalPlan.EveryXMinutes((intervalMinutes.toLongOrNull() ?: 5) * 60_000, intervalSoundId!!)
+                }
                 onSave(
                     stage.copy(
                         name = name,
