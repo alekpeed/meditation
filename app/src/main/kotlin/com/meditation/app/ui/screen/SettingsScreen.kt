@@ -85,13 +85,28 @@ fun SettingsScreen(vm: MeditationViewModel) {
         val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
             if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(vm.exportCsv().toByteArray()) }
         }
+        val exportBackup = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            if (uri != null) context.contentResolver.openOutputStream(uri)?.use { it.write(vm.exportBackupJson().toByteArray()) }
+        }
+        val importBackup = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                val text = context.contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+                if (text != null) vm.importBackupJson(text)
+            }
+        }
         SectionCard("Data") {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { exportJson.launch("meditation-history.json") }) { Text("Export JSON") }
-                Button(onClick = { exportCsv.launch("meditation-history.csv") }) { Text("Export CSV") }
+                Button(onClick = { exportBackup.launch("meditation-backup.json") }) { Text("Back up") }
+                Button(onClick = { importBackup.launch(arrayOf("application/json")) }) { Text("Restore") }
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = { exportJson.launch("meditation-history.json") }) { Text("Export JSON") }
+                TextButton(onClick = { exportCsv.launch("meditation-history.csv") }) { Text("Export CSV") }
             }
             Text(
-                "Exports your session history to a file you choose. Nothing leaves the device otherwise.",
+                "Back up creates a full snapshot (presets, history, favorites, settings) you can restore " +
+                    "later or on another device. Everything stays local unless you share the file.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 8.dp),

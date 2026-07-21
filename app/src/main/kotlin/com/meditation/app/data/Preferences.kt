@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
+@kotlinx.serialization.Serializable
 data class UserPreferences(
     val defaultDurationMs: Long = 10 * 60_000,
     val defaultPreparationMs: Long = 0,

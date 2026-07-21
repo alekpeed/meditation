@@ -136,6 +136,47 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun validationErrors(preset: SessionPreset): List<String> =
         com.meditation.core.PresetValidation.validate(preset)
 
+    // ---- Full backup / restore ------------------------------------------------------------
+
+    fun exportBackupJson(): String {
+        val prefs = preferences.value
+        return com.meditation.core.Backup.encode(
+            com.meditation.core.Backup(
+                exportedWallMs = System.currentTimeMillis(),
+                presets = presets.value,
+                history = history.value,
+                favoriteSoundIds = sounds.value.filter { it.favorite }.map { it.id },
+                preferencesJson = com.meditation.app.data.AppJson.encodeToString(
+                    com.meditation.app.data.UserPreferences.serializer(), prefs,
+                ),
+            ),
+        )
+    }
+
+    /** Returns true if the text was a valid backup and restore was started. */
+    fun importBackupJson(text: String): Boolean {
+        val backup = com.meditation.core.Backup.decode(text) ?: return false
+        viewModelScope.launch {
+            backup.presets.forEach { container.presetRepository.save(it) }
+            backup.history.forEach { container.historyRepository.record(it) }
+            backup.favoriteSoundIds.forEach { container.soundRepository.setFavorite(it, true) }
+            backup.preferencesJson?.let { pj ->
+                runCatching {
+                    val p = com.meditation.app.data.AppJson.decodeFromString(
+                        com.meditation.app.data.UserPreferences.serializer(), pj,
+                    )
+                    val repo = container.preferencesRepository
+                    repo.setBellVolume(p.bellVolume); repo.setAmbienceVolume(p.ambienceVolume)
+                    repo.setDefaultDuration(p.defaultDurationMs); repo.setDefaultPreparation(p.defaultPreparationMs)
+                    repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme)
+                    repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
+                    repo.setResumeAuto(p.interruptionResumeAuto)
+                }
+            }
+        }
+        return true
+    }
+
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
