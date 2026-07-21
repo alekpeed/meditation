@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.meditation.app.AppContainer
 import com.meditation.app.data.UserPreferences
+import com.meditation.core.AutoPreset
+import com.meditation.core.AutoPresetRule
 import com.meditation.core.CompletedSession
 import com.meditation.core.OvertimeMode
 import com.meditation.core.SessionPreset
@@ -19,6 +21,20 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.UUID
+
+/** Fixed dayparts used by the time-of-day auto-preset picker (minutes since local midnight). */
+object AutoPresetWindows {
+    data class Window(val key: String, val label: String, val startMinute: Int, val endMinute: Int)
+
+    val all = listOf(
+        Window("morning", "Morning · 5–11am", 5 * 60, 11 * 60),
+        Window("midday", "Midday · 11am–4pm", 11 * 60, 16 * 60),
+        Window("evening", "Evening · 4–10pm", 16 * 60, 22 * 60),
+        Window("night", "Night · 10pm–5am", 22 * 60, 5 * 60),
+    )
+
+    fun byKey(key: String): Window? = all.firstOrNull { it.key == key }
+}
 
 /**
  * Bridges the [com.meditation.app.engine.MeditationController] and repositories to Compose. It holds
@@ -45,6 +61,10 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
     val preferences: StateFlow<UserPreferences> = container.preferencesRepository.preferences
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UserPreferences())
+
+    val autoPresetRules: StateFlow<List<AutoPresetRule>> = preferences
+        .map { parseAutoPresetRules(it.autoPresetRulesJson) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val statistics: StateFlow<com.meditation.core.Statistics> = container.historyRepository.all
         .map { list ->
@@ -142,6 +162,37 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun setKeepScreenOn(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setKeepScreenOn(on) }
     fun setReducedMotion(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setReducedMotion(on) }
     fun setDndDuringSession(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setDndDuringSession(on) }
+
+    // ---- Time-of-day auto-presets ---------------------------------------------------------
+
+    /** Assign [presetId] to a fixed daypart [windowKey], or clear it when null. */
+    fun setAutoPresetForWindow(windowKey: String, presetId: String?) = viewModelScope.launch {
+        val window = AutoPresetWindows.byKey(windowKey) ?: return@launch
+        val rules = autoPresetRules.value
+            .filterNot { it.startMinute == window.startMinute && it.endMinute == window.endMinute }
+            .toMutableList()
+        if (presetId != null) {
+            rules += AutoPresetRule(window.startMinute, window.endMinute, presetId, window.label)
+        }
+        val json = com.meditation.app.data.AppJson.encodeToString(
+            kotlinx.serialization.builtins.ListSerializer(AutoPresetRule.serializer()), rules,
+        )
+        container.preferencesRepository.setAutoPresetRules(json)
+    }
+
+    /** The preset a rule maps to for the current local time, if any (evaluated on demand). */
+    fun suggestedPresetNow(): SessionPreset? {
+        val now = System.currentTimeMillis()
+        val tz = java.util.TimeZone.getDefault().getOffset(now).toLong()
+        val id = AutoPreset.select(autoPresetRules.value, AutoPreset.minuteOfDay(now, tz)) ?: return null
+        return presets.value.firstOrNull { it.id == id }
+    }
+
+    private fun parseAutoPresetRules(json: String): List<AutoPresetRule> = runCatching {
+        com.meditation.app.data.AppJson.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(AutoPresetRule.serializer()), json,
+        )
+    }.getOrDefault(emptyList())
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
     fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {
@@ -200,6 +251,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
                     repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme); repo.setPalette(p.palette)
                     repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
                     repo.setDndDuringSession(p.dndDuringSession)
+                    repo.setAutoPresetRules(p.autoPresetRulesJson)
                     repo.setResumeAuto(p.interruptionResumeAuto)
                 }
             }

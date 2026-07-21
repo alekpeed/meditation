@@ -41,6 +41,9 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
     val sounds by vm.sounds.collectAsStateWithLifecycle()
     val totalMs by vm.totalActiveMs.collectAsStateWithLifecycle()
     val count by vm.sessionCount.collectAsStateWithLifecycle()
+    val presets by vm.presets.collectAsStateWithLifecycle()
+    val autoRules by vm.autoPresetRules.collectAsStateWithLifecycle()
+    val suggested = remember(autoRules, presets) { vm.suggestedPresetNow() }
 
     var durationMs by remember { mutableLongStateOf(prefs.defaultDurationMs) }
     var withPrep by remember { mutableStateOf(false) }
@@ -60,6 +63,26 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(16.dp))
+
+        suggested?.let { preset ->
+            Card(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                Row(
+                    Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Suggested for now", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                        Text(preset.name, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            Format.durationWords(preset.plannedDurationMs),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Button(onClick = { vm.start(preset) }) { Text("Start") }
+                }
+            }
+        }
 
         Card {
             Column(Modifier.padding(16.dp)) {

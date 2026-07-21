@@ -34,10 +34,13 @@ import com.meditation.app.MeditationApp
 import com.meditation.app.alarm.AlarmScheduler
 import com.meditation.app.ui.MeditationViewModel
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(vm: MeditationViewModel) {
     val context = LocalContext.current
     val prefs by vm.preferences.collectAsStateWithLifecycle()
+    val presets by vm.presets.collectAsStateWithLifecycle()
+    val autoRules by vm.autoPresetRules.collectAsStateWithLifecycle()
     val container = MeditationApp.from(context).container
 
     val notificationsOn = NotificationManagerCompat.from(context).areNotificationsEnabled()
@@ -145,6 +148,41 @@ fun SettingsScreen(vm: MeditationViewModel) {
                         TextButton(onClick = { vm.setReminder(true, (prefs.reminderHour + 1) % 24, prefs.reminderMinute) }) { Text("+h") }
                         TextButton(onClick = { vm.setReminder(true, prefs.reminderHour, (prefs.reminderMinute + 45) % 60) }) { Text("−m") }
                         TextButton(onClick = { vm.setReminder(true, prefs.reminderHour, (prefs.reminderMinute + 15) % 60) }) { Text("+m") }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        SectionCard("Auto-presets") {
+            Text(
+                "Suggest a session on the Home screen depending on the time of day.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (presets.isEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Text("Create a preset first to assign it to a time of day.", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                com.meditation.app.ui.AutoPresetWindows.all.forEach { window ->
+                    val currentId = autoRules.firstOrNull {
+                        it.startMinute == window.startMinute && it.endMinute == window.endMinute
+                    }?.presetId
+                    Spacer(Modifier.height(10.dp))
+                    Text(window.label, style = MaterialTheme.typography.bodyMedium)
+                    androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        androidx.compose.material3.FilterChip(
+                            selected = currentId == null,
+                            onClick = { vm.setAutoPresetForWindow(window.key, null) },
+                            label = { Text("Off") },
+                        )
+                        presets.forEach { p ->
+                            androidx.compose.material3.FilterChip(
+                                selected = currentId == p.id,
+                                onClick = { vm.setAutoPresetForWindow(window.key, p.id) },
+                                label = { Text(p.name) },
+                            )
+                        }
                     }
                 }
             }
