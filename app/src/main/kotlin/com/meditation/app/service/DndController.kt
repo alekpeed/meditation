@@ -20,15 +20,16 @@ class DndController(context: Context) {
     fun enable(priorityOnly: Boolean = true) {
         if (!hasAccess) return
         if (previousFilter == null) previousFilter = nm.currentInterruptionFilter
-        nm.interruptionFilter =
+        nm.setInterruptionFilter(
             if (priorityOnly) NotificationManager.INTERRUPTION_FILTER_PRIORITY
-            else NotificationManager.INTERRUPTION_FILTER_NONE
+            else NotificationManager.INTERRUPTION_FILTER_NONE,
+        )
     }
 
     /** Restore whatever filter was active before [enable]; no-op if we never changed it. */
     fun restore() {
         if (!hasAccess) return
-        previousFilter?.let { nm.interruptionFilter = it }
+        previousFilter?.let { nm.setInterruptionFilter(it) }
         previousFilter = null
     }
 }
