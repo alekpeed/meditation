@@ -122,6 +122,16 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun savePreset(preset: SessionPreset) = viewModelScope.launch {
         container.presetRepository.save(preset)
     }
+
+    /** Instantiate a [com.meditation.core.SessionTemplates] blueprint and save it as a new preset. */
+    fun createFromTemplate(templateKey: String) = viewModelScope.launch {
+        val preset = com.meditation.core.SessionTemplates.build(
+            key = templateKey,
+            id = "preset-${UUID.randomUUID()}",
+            nowMs = System.currentTimeMillis(),
+        ) ?: return@launch
+        container.presetRepository.save(preset)
+    }
     fun deletePreset(id: String) = viewModelScope.launch { container.presetRepository.delete(id) }
     fun deleteHistory(id: String) = viewModelScope.launch { container.historyRepository.delete(id) }
     fun toggleSoundFavorite(id: String, favorite: Boolean) = viewModelScope.launch {
