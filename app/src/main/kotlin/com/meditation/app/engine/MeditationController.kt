@@ -47,6 +47,7 @@ class MeditationController(
     private val audio: AudioController,
     private val alarms: AlarmScheduler,
     private val notifications: NotificationController,
+    private val dnd: com.meditation.app.service.DndController,
     private val clock: com.meditation.core.Clock = AndroidClock,
 ) {
     private val mutex = Mutex()
@@ -65,6 +66,7 @@ class MeditationController(
             if (state?.isActive == true) return@withLock // an active session already exists
             val res = engine.start(UUID.randomUUID().toString(), preset)
             applyResult(res, isStart = true)
+            if (prefs.currentPrefs().dndDuringSession) dnd.enable()
             startService()
             startLoop()
         }
@@ -189,6 +191,7 @@ class MeditationController(
     private suspend fun onTerminal(terminal: ActiveSessionState) {
         loopJob?.cancel(); loopJob = null
         audio.stopAll()
+        dnd.restore()
         alarms.cancel(terminal.sessionId)
         // Exactly one history record (dedup by session id at the DAO layer).
         if (terminal.terminal == TerminalKind.COMPLETED && !terminal.completionRecordCreated) {

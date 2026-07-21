@@ -141,6 +141,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun setPalette(palette: String) = viewModelScope.launch { container.preferencesRepository.setPalette(palette) }
     fun setKeepScreenOn(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setKeepScreenOn(on) }
     fun setReducedMotion(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setReducedMotion(on) }
+    fun setDndDuringSession(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setDndDuringSession(on) }
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
     fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {
@@ -198,6 +199,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
                     repo.setDefaultDuration(p.defaultDurationMs); repo.setDefaultPreparation(p.defaultPreparationMs)
                     repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme); repo.setPalette(p.palette)
                     repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
+                    repo.setDndDuringSession(p.dndDuringSession)
                     repo.setResumeAuto(p.interruptionResumeAuto)
                 }
             }

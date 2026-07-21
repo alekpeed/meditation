@@ -87,6 +87,9 @@ fun SettingsScreen(vm: MeditationViewModel) {
             ToggleRow("Reduced motion", "Turn off the breathing animation on the timer.", prefs.reducedMotion) {
                 vm.setReducedMotion(it)
             }
+            ToggleRow("Silence notifications", "Turn on Do Not Disturb while a session runs (needs access below).", prefs.dndDuringSession) {
+                vm.setDndDuringSession(it)
+            }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -105,6 +108,14 @@ fun SettingsScreen(vm: MeditationViewModel) {
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     )
                 }
+            }
+            val dndAccess = (context.getSystemService(android.content.Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager).isNotificationPolicyAccessGranted
+            StatusRow("Do Not Disturb access", if (dndAccess) "Allowed" else "Not allowed") {
+                context.startActivity(
+                    Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                )
             }
             Text(
                 "Battery optimization can delay background timers on some devices. This app cannot " +

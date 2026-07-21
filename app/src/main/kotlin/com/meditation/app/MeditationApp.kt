@@ -69,6 +69,7 @@ class AppContainer(app: Application) {
     private val alarms = AlarmScheduler(app)
     val reminderScheduler = ReminderScheduler(app)
     val audio = AudioController(app, scope, soundRepository)
+    val dnd = com.meditation.app.service.DndController(app)
 
     val controller = MeditationController(
         appContext = app,
@@ -80,5 +81,6 @@ class AppContainer(app: Application) {
         audio = audio,
         alarms = alarms,
         notifications = notifications,
+        dnd = dnd,
     )
 }
