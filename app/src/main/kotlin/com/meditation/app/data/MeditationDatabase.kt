@@ -14,7 +14,7 @@ import androidx.room.RoomDatabase
         AttributionEntity::class,
     ],
     version = 1,
-    exportSchema = true,
+    exportSchema = false,
 )
 abstract class MeditationDatabase : RoomDatabase() {
     abstract fun presetDao(): PresetDao

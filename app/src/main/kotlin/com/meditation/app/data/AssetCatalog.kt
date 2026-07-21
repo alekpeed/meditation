@@ -5,7 +5,7 @@ import com.meditation.core.GeneratorConfig
 import kotlinx.serialization.Serializable
 
 /**
- * DTOs for the bundled JSON manifests (assets/metadata/*.json). Kept separate from the domain model
+ * DTOs for the bundled JSON manifests in assets/metadata. Kept separate from the domain model
  * so the on-disk manifest format (lowercase category/role strings, "filename" instead of a URI) can
  * evolve independently of Room and the engine.
  */
