@@ -176,8 +176,10 @@ docs/  (specs the app was built from), README.md
   backlog). Phase 1 + Phase 2 features are all done (random/progressive interval bells, statistics,
   breathing pacer, mala/mantra counter, backup & restore, daily reminder, Quick Settings tile,
   mood/note/tags + history detail, calendar heatmap).
-- **Deferred (do NOT build unless asked):** home-screen widgets, NFC launch, Tasker, spoken-cue TTS,
-  body-scan & walking modes, advanced in-app audio trimming.
+- **Deferred (do NOT build unless asked):** home-screen widgets, spoken-cue TTS, advanced in-app
+  audio trimming. Body-scan & walking modes now exist as session templates (`core/SessionTemplates.kt`).
+- **Permanently scrapped — do not build, do not re-propose:** NFC launch, Tasker integration. The
+  user explicitly cancelled both; they are out of scope for this app.
 
 ---
 
