@@ -62,10 +62,11 @@ class MainActivity : ComponentActivity() {
         maybeRequestNotifications()
 
         setContent {
-            MeditationTheme {
+            val container = MeditationApp.from(this).container
+            val vm: MeditationViewModel = viewModel(factory = MeditationViewModel.Factory(container))
+            val prefs by vm.preferences.collectAsStateWithLifecycle()
+            MeditationTheme(themeMode = prefs.theme, paletteKey = prefs.palette) {
                 Surface {
-                    val container = MeditationApp.from(this).container
-                    val vm: MeditationViewModel = viewModel(factory = MeditationViewModel.Factory(container))
                     RootScaffold(vm)
                 }
             }

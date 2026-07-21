@@ -26,6 +26,7 @@ data class UserPreferences(
     val ambienceVolume: Double = 0.6,
     val interruptionResumeAuto: Boolean = true,
     val theme: String = "system",
+    val palette: String = "twilight",
     val reducedMotion: Boolean = false,
     val keepScreenOn: Boolean = false,
     val reminderEnabled: Boolean = false,
@@ -47,6 +48,7 @@ class PreferencesRepository(private val context: Context) {
             ambienceVolume = p[Keys.ambienceVolume] ?: 0.6,
             interruptionResumeAuto = (p[Keys.resumeAuto] ?: 1) == 1,
             theme = p[Keys.theme] ?: "system",
+            palette = p[Keys.palette] ?: "twilight",
             reducedMotion = (p[Keys.reducedMotion] ?: 0) == 1,
             keepScreenOn = (p[Keys.keepScreenOn] ?: 0) == 1,
             reminderEnabled = (p[Keys.reminderEnabled] ?: 0) == 1,
@@ -67,6 +69,7 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setDefaultPreparation(ms: Long) = edit { it[Keys.defaultPrep] = ms }
     suspend fun setOvertimeMode(mode: OvertimeMode) = edit { it[Keys.overtime] = mode.name }
     suspend fun setTheme(theme: String) = edit { it[Keys.theme] = theme }
+    suspend fun setPalette(palette: String) = edit { it[Keys.palette] = palette }
     suspend fun setReducedMotion(on: Boolean) = edit { it[Keys.reducedMotion] = if (on) 1 else 0 }
     suspend fun setKeepScreenOn(on: Boolean) = edit { it[Keys.keepScreenOn] = if (on) 1 else 0 }
     suspend fun setResumeAuto(on: Boolean) = edit { it[Keys.resumeAuto] = if (on) 1 else 0 }
@@ -85,6 +88,7 @@ class PreferencesRepository(private val context: Context) {
         val ambienceVolume = doublePreferencesKey("ambience_volume")
         val resumeAuto = intPreferencesKey("resume_auto")
         val theme = stringPreferencesKey("theme")
+        val palette = stringPreferencesKey("palette")
         val reducedMotion = intPreferencesKey("reduced_motion")
         val keepScreenOn = intPreferencesKey("keep_screen_on")
         val reminderEnabled = intPreferencesKey("reminder_enabled")

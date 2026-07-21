@@ -53,6 +53,33 @@ fun SettingsScreen(vm: MeditationViewModel) {
         }
 
         Spacer(Modifier.height(12.dp))
+        SectionCard("Appearance") {
+            Text("Theme", style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(4.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { (key, label) ->
+                    androidx.compose.material3.FilterChip(
+                        selected = prefs.theme == key,
+                        onClick = { vm.setTheme(key) },
+                        label = { Text(label) },
+                    )
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            Text("Palette", style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(4.dp))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.meditation.app.ui.theme.Palettes.all.forEach { palette ->
+                    androidx.compose.material3.FilterChip(
+                        selected = prefs.palette == palette.key,
+                        onClick = { vm.setPalette(palette.key) },
+                        label = { Text(palette.title) },
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
         SectionCard("Background operation") {
             StatusRow("Notifications", if (notificationsOn) "Enabled" else "Disabled") {
                 context.startActivity(
