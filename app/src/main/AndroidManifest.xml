@@ -16,6 +16,13 @@
     <!-- Silence notifications during a session (user grants Do Not Disturb access; optional). -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
+    <!-- Package-visibility: let TextToSpeech resolve the device's TTS engine (Android 11+). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".MeditationApp"
         android:allowBackup="true"

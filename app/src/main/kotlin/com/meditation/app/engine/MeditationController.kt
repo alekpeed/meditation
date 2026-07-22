@@ -48,6 +48,7 @@ class MeditationController(
     private val alarms: AlarmScheduler,
     private val notifications: NotificationController,
     private val dnd: com.meditation.app.service.DndController,
+    private val tts: com.meditation.app.audio.TtsController,
     private val clock: com.meditation.core.Clock = AndroidClock,
 ) {
     private val mutex = Mutex()
@@ -171,6 +172,7 @@ class MeditationController(
         if (!restoring && res.events.isNotEmpty()) {
             audio.play(res.events, prefs.currentVolumes())
         }
+        if (!restoring) announceStageIfNew(previous?.currentStageIndex, res.state)
         // Keep ambience aligned with the current stage's layers / running state.
         audio.syncForState(res.state, snap, prefs.currentVolumes())
 
@@ -202,6 +204,7 @@ class MeditationController(
                 ),
             )
             notifications.showCompletion(terminal.preset.name)
+            if (prefs.currentPrefs().spokenCuesEnabled) tts.announceComplete(true)
         }
         pendingNote = null; pendingTags = emptyList(); pendingMood = null
         activeRepo.clear()
@@ -233,10 +236,12 @@ class MeditationController(
 
     /** applyResult body without acquiring the mutex (caller already holds it). */
     private suspend fun applyResultNoLock(res: AdvanceResult) {
+        val previousIdx = state?.currentStageIndex
         state = res.state
         val snap = engine.project(res.state)
         _snapshot.value = snap
         if (res.events.isNotEmpty()) audio.play(res.events, prefs.currentVolumes())
+        announceStageIfNew(previousIdx, res.state)
         audio.syncForState(res.state, snap, prefs.currentVolumes())
         val expectedEndWall = expectedEndWallMs(res.state, snap)
         activeRepo.save(res.state, expectedEndWall)
@@ -244,6 +249,14 @@ class MeditationController(
             alarms.scheduleFinal(res.state.sessionId, expectedEndWall)
         }
         if (!res.state.isActive) onTerminal(res.state)
+    }
+
+    /** Speak the entered stage's name + cues once, the first time [newState]'s stage index changes. */
+    private suspend fun announceStageIfNew(previousIdx: Int?, newState: ActiveSessionState) {
+        val newIdx = newState.currentStageIndex
+        if (newIdx < 0 || newIdx == previousIdx) return
+        val stage = newState.preset.stages.getOrNull(newIdx) ?: return
+        if (prefs.currentPrefs().spokenCuesEnabled) tts.announceStage(stage, enabled = true)
     }
 
     /** Next moment the engine needs to act: the sooner of stage end and next interval. */

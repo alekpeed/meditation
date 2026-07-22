@@ -69,6 +69,7 @@ fun StageEditorDialog(
     var intervalSoundId by remember { mutableStateOf(existingEvery?.soundId ?: existingRandom?.soundId) }
 
     val layers: SnapshotStateList<AmbienceLayer> = remember { stage.ambienceLayers.toMutableStateList() }
+    val cues: SnapshotStateList<String> = remember { stage.spokenCueIds.toMutableStateList() }
 
     fun currentLayers() = layers.map { it.soundId to it.volume }
 
@@ -139,6 +140,25 @@ fun StageEditorDialog(
                 }
                 Spacer(Modifier.height(12.dp))
 
+                Text("Spoken cues", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    "Read aloud when this stage begins (needs Spoken cues on in Settings).",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                cues.forEachIndexed { i, cue ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            cue, { cues[i] = it },
+                            label = { Text("Cue ${i + 1}") },
+                            modifier = Modifier.weight(1f),
+                        )
+                        IconButton(onClick = { cues.removeAt(i) }) { Icon(Icons.Filled.Delete, "Remove cue") }
+                    }
+                }
+                OutlinedButton(onClick = { cues.add("") }) { Text("Add cue") }
+                Spacer(Modifier.height(12.dp))
+
                 Text("Ambience layers (up to 3)", style = MaterialTheme.typography.titleSmall)
                 layers.forEachIndexed { i, layer ->
                     SoundPicker(
@@ -190,6 +210,7 @@ fun StageEditorDialog(
                         closingSoundId = closingId,
                         intervalPlan = plan,
                         ambienceLayers = layers.toList(),
+                        spokenCueIds = cues.filter { it.isNotBlank() },
                     ),
                 )
             }) { Text("Done") }

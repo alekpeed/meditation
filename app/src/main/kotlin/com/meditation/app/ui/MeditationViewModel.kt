@@ -162,6 +162,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun setKeepScreenOn(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setKeepScreenOn(on) }
     fun setReducedMotion(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setReducedMotion(on) }
     fun setDndDuringSession(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setDndDuringSession(on) }
+    fun setSpokenCuesEnabled(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setSpokenCuesEnabled(on) }
 
     // ---- Time-of-day auto-presets ---------------------------------------------------------
 
@@ -250,7 +251,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
                     repo.setDefaultDuration(p.defaultDurationMs); repo.setDefaultPreparation(p.defaultPreparationMs)
                     repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme); repo.setPalette(p.palette)
                     repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
-                    repo.setDndDuringSession(p.dndDuringSession)
+                    repo.setDndDuringSession(p.dndDuringSession); repo.setSpokenCuesEnabled(p.spokenCuesEnabled)
                     repo.setAutoPresetRules(p.autoPresetRulesJson)
                     repo.setResumeAuto(p.interruptionResumeAuto)
                 }

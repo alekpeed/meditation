@@ -30,6 +30,7 @@ data class UserPreferences(
     val reducedMotion: Boolean = false,
     val keepScreenOn: Boolean = false,
     val dndDuringSession: Boolean = false,
+    val spokenCuesEnabled: Boolean = false,
     val reminderEnabled: Boolean = false,
     val reminderHour: Int = 8,
     val reminderMinute: Int = 0,
@@ -55,6 +56,7 @@ class PreferencesRepository(private val context: Context) {
             reducedMotion = (p[Keys.reducedMotion] ?: 0) == 1,
             keepScreenOn = (p[Keys.keepScreenOn] ?: 0) == 1,
             dndDuringSession = (p[Keys.dndDuringSession] ?: 0) == 1,
+            spokenCuesEnabled = (p[Keys.spokenCuesEnabled] ?: 0) == 1,
             reminderEnabled = (p[Keys.reminderEnabled] ?: 0) == 1,
             reminderHour = p[Keys.reminderHour] ?: 8,
             reminderMinute = p[Keys.reminderMinute] ?: 0,
@@ -78,6 +80,7 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setReducedMotion(on: Boolean) = edit { it[Keys.reducedMotion] = if (on) 1 else 0 }
     suspend fun setKeepScreenOn(on: Boolean) = edit { it[Keys.keepScreenOn] = if (on) 1 else 0 }
     suspend fun setDndDuringSession(on: Boolean) = edit { it[Keys.dndDuringSession] = if (on) 1 else 0 }
+    suspend fun setSpokenCuesEnabled(on: Boolean) = edit { it[Keys.spokenCuesEnabled] = if (on) 1 else 0 }
     suspend fun setAutoPresetRules(json: String) = edit { it[Keys.autoPresetRules] = json }
     suspend fun currentPrefs(): UserPreferences = preferences.first()
     suspend fun setResumeAuto(on: Boolean) = edit { it[Keys.resumeAuto] = if (on) 1 else 0 }
@@ -100,6 +103,7 @@ class PreferencesRepository(private val context: Context) {
         val reducedMotion = intPreferencesKey("reduced_motion")
         val keepScreenOn = intPreferencesKey("keep_screen_on")
         val dndDuringSession = intPreferencesKey("dnd_during_session")
+        val spokenCuesEnabled = intPreferencesKey("spoken_cues_enabled")
         val reminderEnabled = intPreferencesKey("reminder_enabled")
         val reminderHour = intPreferencesKey("reminder_hour")
         val reminderMinute = intPreferencesKey("reminder_minute")

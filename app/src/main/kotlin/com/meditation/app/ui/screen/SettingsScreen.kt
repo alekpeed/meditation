@@ -93,6 +93,9 @@ fun SettingsScreen(vm: MeditationViewModel) {
             ToggleRow("Silence notifications", "Turn on Do Not Disturb while a session runs (needs access below).", prefs.dndDuringSession) {
                 vm.setDndDuringSession(it)
             }
+            ToggleRow("Spoken cues", "Announce each stage's name and any cues you've written for it.", prefs.spokenCuesEnabled) {
+                vm.setSpokenCuesEnabled(it)
+            }
         }
 
         Spacer(Modifier.height(12.dp))
