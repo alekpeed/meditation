@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.meditation.core.AmbienceLayer
 import com.meditation.core.IntervalPlan
+import com.meditation.core.SavedAmbienceMix
 import com.meditation.core.SessionStage
 import com.meditation.core.SoundAsset
 import com.meditation.core.SoundRole
@@ -48,6 +51,7 @@ fun StageEditorDialog(
     stage: SessionStage,
     isLast: Boolean,
     sounds: List<SoundAsset>,
+    savedMixes: List<SavedAmbienceMix> = emptyList(),
     onPreviewMix: (List<Pair<String, Double>>) -> Unit,
     onStopPreview: () -> Unit,
     onDismiss: () -> Unit,
@@ -160,6 +164,17 @@ fun StageEditorDialog(
                 Spacer(Modifier.height(12.dp))
 
                 Text("Ambience layers (up to 3)", style = MaterialTheme.typography.titleSmall)
+                if (savedMixes.isNotEmpty()) {
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        savedMixes.forEach { mix ->
+                            AssistChip(
+                                onClick = { layers.clear(); layers.addAll(mix.layers.take(3)) },
+                                label = { Text("Apply “${mix.name}”") },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
                 layers.forEachIndexed { i, layer ->
                     SoundPicker(
                         "Layer ${i + 1}", SoundRole.AMBIENCE, sounds, layer.soundId,

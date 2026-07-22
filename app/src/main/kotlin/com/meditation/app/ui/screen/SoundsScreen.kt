@@ -49,7 +49,7 @@ import com.meditation.core.SoundCategory
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SoundsScreen(vm: MeditationViewModel) {
+fun SoundsScreen(vm: MeditationViewModel, onOpenMixer: () -> Unit = {}) {
     val context = LocalContext.current
     val sounds by vm.sounds.collectAsStateWithLifecycle()
     val attributions by vm.attributions.collectAsStateWithLifecycle()
@@ -77,7 +77,10 @@ fun SoundsScreen(vm: MeditationViewModel) {
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text("Sounds", style = MaterialTheme.typography.headlineSmall)
-            Button(onClick = { importLauncher.launch(arrayOf("audio/*")) }) { Text("Import") }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onOpenMixer) { Text("Mixer") }
+                Button(onClick = { importLauncher.launch(arrayOf("audio/*")) }) { Text("Import") }
+            }
         }
         Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

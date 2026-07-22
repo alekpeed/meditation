@@ -9,6 +9,7 @@ import com.meditation.core.AutoPreset
 import com.meditation.core.AutoPresetRule
 import com.meditation.core.CompletedSession
 import com.meditation.core.OvertimeMode
+import com.meditation.core.SavedAmbienceMix
 import com.meditation.core.SessionPreset
 import com.meditation.core.SessionSnapshot
 import com.meditation.core.SessionStage
@@ -64,6 +65,10 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
 
     val autoPresetRules: StateFlow<List<AutoPresetRule>> = preferences
         .map { parseAutoPresetRules(it.autoPresetRulesJson) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val savedMixes: StateFlow<List<SavedAmbienceMix>> = preferences
+        .map { parseSavedMixes(it.savedMixesJson) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val statistics: StateFlow<com.meditation.core.Statistics> = container.historyRepository.all
@@ -200,6 +205,36 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
             kotlinx.serialization.builtins.ListSerializer(AutoPresetRule.serializer()), json,
         )
     }.getOrDefault(emptyList())
+
+    // ---- Soundscape mixer -------------------------------------------------------------------
+
+    /** Save the current mixer layers under [name] as a new reusable mix. */
+    fun saveMix(name: String, layers: List<Pair<String, Double>>) = viewModelScope.launch {
+        val mix = SavedAmbienceMix(
+            id = "mix-${UUID.randomUUID()}",
+            name = name.ifBlank { "Untitled mix" },
+            layers = layers.take(3).map { (id, vol) -> com.meditation.core.AmbienceLayer(id, vol) },
+        )
+        val updated = savedMixes.value + mix
+        persistSavedMixes(updated)
+    }
+
+    fun deleteMix(id: String) = viewModelScope.launch {
+        persistSavedMixes(savedMixes.value.filterNot { it.id == id })
+    }
+
+    private suspend fun persistSavedMixes(mixes: List<SavedAmbienceMix>) {
+        val json = com.meditation.app.data.AppJson.encodeToString(
+            kotlinx.serialization.builtins.ListSerializer(SavedAmbienceMix.serializer()), mixes,
+        )
+        container.preferencesRepository.setSavedMixes(json)
+    }
+
+    private fun parseSavedMixes(json: String): List<SavedAmbienceMix> = runCatching {
+        com.meditation.app.data.AppJson.decodeFromString(
+            kotlinx.serialization.builtins.ListSerializer(SavedAmbienceMix.serializer()), json,
+        )
+    }.getOrDefault(emptyList())
     fun setBellVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setBellVolume(v) }
     fun setAmbienceVolume(v: Double) = viewModelScope.launch { container.preferencesRepository.setAmbienceVolume(v) }
     fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {
@@ -258,7 +293,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
                     repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme); repo.setPalette(p.palette)
                     repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
                     repo.setDndDuringSession(p.dndDuringSession); repo.setSpokenCuesEnabled(p.spokenCuesEnabled)
-                    repo.setAutoPresetRules(p.autoPresetRulesJson)
+                    repo.setAutoPresetRules(p.autoPresetRulesJson); repo.setSavedMixes(p.savedMixesJson)
                     repo.setResumeAuto(p.interruptionResumeAuto)
                 }
             }

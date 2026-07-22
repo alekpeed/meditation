@@ -47,6 +47,7 @@ import java.util.UUID
 fun SessionBuilderScreen(vm: MeditationViewModel, presetId: String?, onDone: () -> Unit) {
     val presets by vm.presets.collectAsStateWithLifecycle()
     val sounds by vm.sounds.collectAsStateWithLifecycle()
+    val savedMixes by vm.savedMixes.collectAsStateWithLifecycle()
     val existing = remember(presets, presetId) { presets.firstOrNull { it.id == presetId } }
 
     var name by remember(existing) { mutableStateOf(existing?.name ?: "") }
@@ -169,6 +170,7 @@ fun SessionBuilderScreen(vm: MeditationViewModel, presetId: String?, onDone: () 
             stage = stages[index],
             isLast = index == stages.lastIndex,
             sounds = sounds,
+            savedMixes = savedMixes,
             onPreviewMix = { layers -> vm.previewMix(layers) },
             onStopPreview = { vm.stopPreview() },
             onDismiss = { vm.stopPreview(); editing = null },

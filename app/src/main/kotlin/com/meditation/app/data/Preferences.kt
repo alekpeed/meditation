@@ -36,6 +36,8 @@ data class UserPreferences(
     val reminderMinute: Int = 0,
     /** JSON-encoded List<AutoPresetRule> for time-of-day suggestions. */
     val autoPresetRulesJson: String = "[]",
+    /** JSON-encoded List<SavedAmbienceMix> from the soundscape mixer. */
+    val savedMixesJson: String = "[]",
 ) {
     val volumes get() = VolumeSettings(bellVolume, ambienceVolume)
 }
@@ -61,6 +63,7 @@ class PreferencesRepository(private val context: Context) {
             reminderHour = p[Keys.reminderHour] ?: 8,
             reminderMinute = p[Keys.reminderMinute] ?: 0,
             autoPresetRulesJson = p[Keys.autoPresetRules] ?: "[]",
+            savedMixesJson = p[Keys.savedMixes] ?: "[]",
         )
     }
 
@@ -82,6 +85,7 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setDndDuringSession(on: Boolean) = edit { it[Keys.dndDuringSession] = if (on) 1 else 0 }
     suspend fun setSpokenCuesEnabled(on: Boolean) = edit { it[Keys.spokenCuesEnabled] = if (on) 1 else 0 }
     suspend fun setAutoPresetRules(json: String) = edit { it[Keys.autoPresetRules] = json }
+    suspend fun setSavedMixes(json: String) = edit { it[Keys.savedMixes] = json }
     suspend fun currentPrefs(): UserPreferences = preferences.first()
     suspend fun setResumeAuto(on: Boolean) = edit { it[Keys.resumeAuto] = if (on) 1 else 0 }
 
@@ -108,5 +112,6 @@ class PreferencesRepository(private val context: Context) {
         val reminderHour = intPreferencesKey("reminder_hour")
         val reminderMinute = intPreferencesKey("reminder_minute")
         val autoPresetRules = stringPreferencesKey("auto_preset_rules")
+        val savedMixes = stringPreferencesKey("saved_ambience_mixes")
     }
 }
