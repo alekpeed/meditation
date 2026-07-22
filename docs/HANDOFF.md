@@ -176,10 +176,15 @@ docs/  (specs the app was built from), README.md
   backlog). Phase 1 + Phase 2 features are all done (random/progressive interval bells, statistics,
   breathing pacer, mala/mantra counter, backup & restore, daily reminder, Quick Settings tile,
   mood/note/tags + history detail, calendar heatmap).
-- **Deferred (do NOT build unless asked):** home-screen widgets, spoken-cue TTS, advanced in-app
-  audio trimming. Body-scan & walking modes now exist as session templates (`core/SessionTemplates.kt`).
-- **Permanently scrapped — do not build, do not re-propose:** NFC launch, Tasker integration. The
-  user explicitly cancelled both; they are out of scope for this app.
+- **Feature work is effectively complete.** Every buildable/CI-verifiable feature across Phase 2,
+  Phase 3, and two moonshots (generative ambient music, on-device recommendations) is implemented.
+  The remaining gap is **content, not code**: the 19 bundled audio files (see §2).
+- **Permanently scrapped — do NOT build, do NOT re-propose.** The user explicitly cancelled all of
+  these; they are out of scope for this app:
+  - NFC launch, Tasker integration.
+  - In-app audio trimming, audio visualizer, spatial audio (the "needs on-device verification" set).
+  - Wearable/health integration, HRV-adaptive sessions, encrypted device-to-device sync, group
+    meditation (the "needs hardware / peers / a backend" set).
 
 ---
 
