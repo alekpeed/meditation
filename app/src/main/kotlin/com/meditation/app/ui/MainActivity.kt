@@ -44,6 +44,7 @@ import com.meditation.app.ui.screen.CounterScreen
 import com.meditation.app.ui.screen.HistoryDetailScreen
 import com.meditation.app.ui.screen.HistoryScreen
 import com.meditation.app.ui.screen.HomeScreen
+import com.meditation.app.ui.screen.RetreatBuilderScreen
 import com.meditation.app.ui.screen.SessionBuilderScreen
 import com.meditation.app.ui.screen.SessionsScreen
 import com.meditation.app.ui.screen.SettingsScreen
@@ -126,6 +127,7 @@ private fun RootScaffold(vm: MeditationViewModel) {
                     vm,
                     onCreate = { navController.navigate("builder") },
                     onEdit = { id -> navController.navigate("builder?presetId=$id") },
+                    onOpenRetreatBuilder = { navController.navigate("retreat_builder") },
                 )
             }
             composable(Dest.Sounds.route) { SoundsScreen(vm) }
@@ -150,6 +152,7 @@ private fun RootScaffold(vm: MeditationViewModel) {
                     onBack = { navController.popBackStack() },
                 )
             }
+            composable("retreat_builder") { RetreatBuilderScreen(vm, onDone = { navController.popBackStack() }) }
             composable("statistics") { StatisticsScreen(vm, onBack = { navController.popBackStack() }) }
             composable("breathing") { BreathingScreen(onBack = { navController.popBackStack() }) }
             composable("counter") { CounterScreen(onBack = { navController.popBackStack() }) }

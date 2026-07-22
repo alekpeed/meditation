@@ -42,7 +42,12 @@ import com.meditation.app.ui.MeditationViewModel
 import com.meditation.core.SessionTemplates
 
 @Composable
-fun SessionsScreen(vm: MeditationViewModel, onCreate: () -> Unit, onEdit: (String) -> Unit) {
+fun SessionsScreen(
+    vm: MeditationViewModel,
+    onCreate: () -> Unit,
+    onEdit: (String) -> Unit,
+    onOpenRetreatBuilder: () -> Unit = {},
+) {
     val presets by vm.presets.collectAsStateWithLifecycle()
     var showTemplates by remember { mutableStateOf(false) }
 
@@ -103,8 +108,8 @@ fun SessionsScreen(vm: MeditationViewModel, onCreate: () -> Unit, onEdit: (Strin
         TemplatePickerDialog(
             onDismiss = { showTemplates = false },
             onPick = { key ->
-                vm.createFromTemplate(key)
                 showTemplates = false
+                if (key == "retreat") onOpenRetreatBuilder() else vm.createFromTemplate(key)
             },
         )
     }
