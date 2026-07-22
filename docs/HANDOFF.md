@@ -179,6 +179,10 @@ docs/  (specs the app was built from), README.md
 - **Saved mixer JSON is transactionally updated:** add/remove operations decode and rewrite the
   current DataStore value inside one edit transaction. Invalid JSON still degrades to an empty
   list, rather than crashing the UI.
+- **Noise colours are RMS-calibrated:** white is now genuine full-band white noise; brown uses a
+  stable 70 Hz-shelf leaky integrator rather than the former sub-bass-heavy tuning. Both target
+  the existing pink generator's uncompressed RMS, with pure-Kotlin checks in
+  `NoiseColorCalibrationTest`. Device listening is still required to validate perceived loudness.
 
 - **Compile-verified only.** No device or emulator was ever available in these sessions. The whole
   `:app` module is confirmed to *compile* via CI, and `:core` is unit-tested, but UI/audio has not

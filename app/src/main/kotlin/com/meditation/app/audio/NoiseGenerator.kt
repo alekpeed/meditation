@@ -6,6 +6,7 @@ import android.media.AudioManager
 import android.media.AudioTrack
 import com.meditation.core.Binaural
 import com.meditation.core.GeneratorConfig
+import com.meditation.core.NoiseColorCalibration
 import kotlin.concurrent.thread
 import kotlin.math.PI
 import kotlin.math.sin
@@ -78,7 +79,6 @@ class NoiseGenerator(private val config: GeneratorConfig) {
             // Filter/oscillator state kept across buffers so there are no seams between writes.
             var b0 = 0.0; var b1 = 0.0; var b2 = 0.0; var b3 = 0.0; var b4 = 0.0; var b5 = 0.0; var b6 = 0.0
             var brown = 0.0
-            var whiteLp = 0.0
             var phase = 0.0
             var phase2 = 0.0
             val freq = config.frequencyHz ?: 110.0
@@ -100,11 +100,9 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                 for (i in buffer.indices) {
                     val sample = when (config.type) {
                         "white" -> {
-                            // Full-band digital white noise has a brittle, hissy top octave that
-                            // makes it fatiguing. A gentle one-pole low-pass (~7 kHz) rounds that
-                            // off; the ×1.3 restores the level the filter removes.
-                            whiteLp += 0.6 * (whiteSample() - whiteLp)
-                            (whiteLp * 1.3).toFloat()
+                            // Keep the advertised white noise genuinely full-band. Its gain is
+                            // calibrated to the existing pink implementation's uncompressed RMS.
+                            (whiteSample() * NoiseColorCalibration.whiteGain).toFloat()
                         }
                         "pink" -> {
                             val w = whiteSample().toDouble()
@@ -120,9 +118,11 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                             (pink * 0.11).toFloat()
                         }
                         "brown" -> {
-                            // Leaky integrator (never clamps to a rail), then soft-limited below.
-                            brown = brown * 0.996 + whiteSample() * 0.04
-                            (brown * 2.2).toFloat()
+                            // A calibrated leaky integrator: the 70 Hz shelf prevents the old
+                            // sub-bass-heavy rumble while retaining brown's -6 dB/octave colour.
+                            brown = brown * NoiseColorCalibration.BROWN_POLE +
+                                whiteSample() * NoiseColorCalibration.brownDrive
+                            brown.toFloat()
                         }
                         "sine" -> {
                             phase += 2 * PI * freq / sampleRate
