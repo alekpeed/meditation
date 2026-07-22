@@ -1,4 +1,6 @@
 <resources>
     <color name="night">#0E1116</color>
     <color name="ic_launcher_background">#1A2230</color>
+    <color name="widget_on_dark">#DCE7ED</color>
+    <color name="widget_accent">#8AB4C8</color>
 </resources>

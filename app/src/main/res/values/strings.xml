@@ -18,4 +18,6 @@
     <string name="channel_reminder_desc">Gentle daily nudge to meditate</string>
     <string name="notif_reminder_title">Time to meditate</string>
     <string name="notif_reminder_text">Take a few minutes to sit.</string>
+
+    <string name="widget_loading">Tap to sit</string>
 </resources>

@@ -76,6 +76,18 @@
             android:name=".alarm.ReminderReceiver"
             android:exported="false" />
 
+        <!-- Home-screen quick-start widget (Phase 2). -->
+        <receiver
+            android:name=".widget.MeditationWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_meditation_info" />
+        </receiver>
+
         <!-- Quick Settings tile that opens the app. -->
         <service
             android:name=".service.QuickTileService"
