@@ -1,192 +1,192 @@
 [
   {
     "id": "attr-bell-clear-small-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bell Clear Small 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "NikoletB",
+    "title": "Little bell",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/NikoletB/sounds/846674/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-bell-soft-small-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bell Soft Small 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "Fenodyrie",
+    "title": "Bell rings timidly.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/Fenodyrie/sounds/583947/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-bell-temple-medium-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bell Temple Medium 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "nahmandub",
+    "title": "Bell at Daitokuji temple, kyoto.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/nahmandub/sounds/131348/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-bowl-light-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bowl Light 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "hollandm",
+    "title": "Singing Bowl, long without reverb",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/hollandm/sounds/573805/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-bowl-medium-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bowl Medium 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "brodjaman",
+    "title": "Singing bowl c tuned",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/brodjaman/sounds/204917/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-bowl-deep-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Bowl Deep 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "zambolino",
+    "title": "Singing Bowl-deep.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/zambolino/sounds/699447/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-gong-small-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Gong Small 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "gevaroy",
+    "title": "Gong 1.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/gevaroy/sounds/347383/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-gong-medium-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Gong Medium 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "gevaroy",
+    "title": "Gong 2.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/gevaroy/sounds/347382/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-gong-deep-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Gong Deep 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "CVLTIV8R",
+    "title": "Scrap Gong in Alien Landscape",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/CVLTIV8R/sounds/839818/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-wood-block-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Wood Block 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "thomasjaunism",
+    "title": "wood block",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/thomasjaunism/sounds/218461/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-wood-mokugyo-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Wood Mokugyo 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "jonopodmore",
+    "title": "Mokugyo.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/jonopodmore/sounds/607215/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-crystal-soft-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Crystal Soft 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "matthewHoldenSound",
+    "title": "OWI Crystal class ping.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/matthewHoldenSound/sounds/542561/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-completion-soft-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Completion Soft 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "hans",
+    "title": "softsmoothbell.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/hans/sounds/61683/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
   },
   {
     "id": "attr-ambience-rain-steady-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Rain Steady 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "Garuda1982",
+    "title": "gentle steady spring rain city",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/Garuda1982/sounds/852917/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   },
   {
     "id": "attr-ambience-ocean-gentle-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Ocean Gentle 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "kkenny101",
+    "title": "Gentle Ocean Waves Loop",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/kkenny101/sounds/852826/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   },
   {
     "id": "attr-ambience-forest-calm-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Forest Calm 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "Villehardt",
+    "title": "Forest Summer Day Quiet Calm Birds Insects Atmo Nowind Finland June Warm.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/Villehardt/sounds/613995/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   },
   {
     "id": "attr-ambience-fireplace-soft-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Fireplace Soft 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "RyanKingArt",
+    "title": "Fireplace Fire Crackling",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/RyanKingArt/sounds/717579/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   },
   {
     "id": "attr-ambience-room-tone-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Room Tone 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "Julien_Matthey",
+    "title": "JM AMB Room Tone 01 MONO",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/Julien_Matthey/sounds/837886/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   },
   {
     "id": "attr-ambience-drone-low-01",
-    "creator": "Meditation Timer contributors",
-    "title": "Ambience Drone Low 01",
-    "sourceName": "Meditation Timer original sound design",
-    "sourcePage": "app/src/main/assets/audio/",
+    "creator": "kickhat",
+    "title": "Ambient Drone 21.07.2018.wav",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/kickhat/sounds/435147/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Original additive-modal or periodic ambience synthesis; peak-normalized to approximately -3 dBFS and encoded for Android playback."
+    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
   }
 ]

@@ -75,8 +75,8 @@ Requires Android Studio (Ladybug+) or the Android SDK with an API 35 platform.
 The catalog metadata (`app/src/main/assets/metadata/sounds.json`, `attributions.json`) ships the 24
 sound identities from the asset manifest. The 19 bundled sound assets are included in
 `app/src/main/assets/audio/`: short strikes are PCM WAV and long ambience loops are compact Ogg
-Vorbis. They are original CC0 sound designs, with provenance and processing details recorded in the
-attribution catalog. The remaining generated noise/drone sounds need no files. Every attribution
+Vorbis. They are externally sourced CC0 recordings, with provenance and processing details recorded in
+the attribution catalog. The remaining generated noise/drone sounds need no files. Every attribution
 field is completed for the bundled catalog.
 
 ---
