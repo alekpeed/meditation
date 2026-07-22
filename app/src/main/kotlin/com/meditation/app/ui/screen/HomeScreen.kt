@@ -95,11 +95,12 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                     Spacer(Modifier.height(8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         val recPreset = recommendation.presetId?.let { id -> presets.firstOrNull { it.id == id } }
+                        val recDuration = recommendation.suggestedDurationMs
                         Button(onClick = {
                             when {
                                 recPreset != null -> vm.start(recPreset)
-                                recommendation.suggestedDurationMs != null -> vm.startQuickSession(
-                                    durationMs = recommendation.suggestedDurationMs,
+                                recDuration != null -> vm.startQuickSession(
+                                    durationMs = recDuration,
                                     preparationMs = 0,
                                     openingSoundId = openingBell?.id,
                                     intervalSoundId = null,
