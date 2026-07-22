@@ -27,6 +27,7 @@ data class UserPreferences(
     val interruptionResumeAuto: Boolean = true,
     val theme: String = "system",
     val palette: String = "twilight",
+    val timerFace: String = "ring",
     val reducedMotion: Boolean = false,
     val keepScreenOn: Boolean = false,
     val dndDuringSession: Boolean = false,
@@ -55,6 +56,7 @@ class PreferencesRepository(private val context: Context) {
             interruptionResumeAuto = (p[Keys.resumeAuto] ?: 1) == 1,
             theme = p[Keys.theme] ?: "system",
             palette = p[Keys.palette] ?: "twilight",
+            timerFace = p[Keys.timerFace] ?: "ring",
             reducedMotion = (p[Keys.reducedMotion] ?: 0) == 1,
             keepScreenOn = (p[Keys.keepScreenOn] ?: 0) == 1,
             dndDuringSession = (p[Keys.dndDuringSession] ?: 0) == 1,
@@ -80,6 +82,7 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setOvertimeMode(mode: OvertimeMode) = edit { it[Keys.overtime] = mode.name }
     suspend fun setTheme(theme: String) = edit { it[Keys.theme] = theme }
     suspend fun setPalette(palette: String) = edit { it[Keys.palette] = palette }
+    suspend fun setTimerFace(face: String) = edit { it[Keys.timerFace] = face }
     suspend fun setReducedMotion(on: Boolean) = edit { it[Keys.reducedMotion] = if (on) 1 else 0 }
     suspend fun setKeepScreenOn(on: Boolean) = edit { it[Keys.keepScreenOn] = if (on) 1 else 0 }
     suspend fun setDndDuringSession(on: Boolean) = edit { it[Keys.dndDuringSession] = if (on) 1 else 0 }
@@ -104,6 +107,7 @@ class PreferencesRepository(private val context: Context) {
         val resumeAuto = intPreferencesKey("resume_auto")
         val theme = stringPreferencesKey("theme")
         val palette = stringPreferencesKey("palette")
+        val timerFace = stringPreferencesKey("timer_face")
         val reducedMotion = intPreferencesKey("reduced_motion")
         val keepScreenOn = intPreferencesKey("keep_screen_on")
         val dndDuringSession = intPreferencesKey("dnd_during_session")

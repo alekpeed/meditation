@@ -80,6 +80,18 @@ fun SettingsScreen(vm: MeditationViewModel) {
                     )
                 }
             }
+            Spacer(Modifier.height(12.dp))
+            Text("Timer face", style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(4.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("ring" to "Ring", "digits" to "Digits", "minimal" to "Minimal").forEach { (key, label) ->
+                    androidx.compose.material3.FilterChip(
+                        selected = prefs.timerFace == key,
+                        onClick = { vm.setTimerFace(key) },
+                        label = { Text(label) },
+                    )
+                }
+            }
         }
 
         Spacer(Modifier.height(12.dp))

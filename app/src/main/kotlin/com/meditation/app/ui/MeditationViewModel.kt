@@ -164,6 +164,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     }
     fun setTheme(mode: String) = viewModelScope.launch { container.preferencesRepository.setTheme(mode) }
     fun setPalette(palette: String) = viewModelScope.launch { container.preferencesRepository.setPalette(palette) }
+    fun setTimerFace(face: String) = viewModelScope.launch { container.preferencesRepository.setTimerFace(face) }
     fun setKeepScreenOn(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setKeepScreenOn(on) }
     fun setReducedMotion(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setReducedMotion(on) }
     fun setDndDuringSession(on: Boolean) = viewModelScope.launch { container.preferencesRepository.setDndDuringSession(on) }
@@ -314,6 +315,7 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
                     repo.setBellVolume(p.bellVolume); repo.setAmbienceVolume(p.ambienceVolume)
                     repo.setDefaultDuration(p.defaultDurationMs); repo.setDefaultPreparation(p.defaultPreparationMs)
                     repo.setOvertimeMode(p.overtimeMode); repo.setTheme(p.theme); repo.setPalette(p.palette)
+                    repo.setTimerFace(p.timerFace)
                     repo.setReducedMotion(p.reducedMotion); repo.setKeepScreenOn(p.keepScreenOn)
                     repo.setDndDuringSession(p.dndDuringSession); repo.setSpokenCuesEnabled(p.spokenCuesEnabled)
                     repo.setAutoPresetRules(p.autoPresetRulesJson); repo.setSavedMixes(p.savedMixesJson)

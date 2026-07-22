@@ -24,6 +24,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -98,7 +99,11 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
                 }
             }
 
-            ProgressRing(snapshot, breathScale)
+            when (prefs.timerFace) {
+                "digits" -> DigitsFace(snapshot)
+                "minimal" -> MinimalFace(snapshot)
+                else -> ProgressRing(snapshot, breathScale)
+            }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 snapshot.nextIntervalInMs?.let {
@@ -133,14 +138,60 @@ fun ActiveTimerScreen(snapshot: SessionSnapshot, vm: MeditationViewModel) {
     )
 }
 
+/** True once the whole session (or its final stage) has moved from counting down to counting up. */
+private fun isCountingUp(snapshot: SessionSnapshot): Boolean =
+    snapshot.status == SessionStatus.OVERTIME || snapshot.remainingMs <= 0
+
+/** Fraction of the current stage elapsed, 0..1 (0 when there's nothing to measure against). */
+private fun stageFraction(snapshot: SessionSnapshot): Float = run {
+    val remaining = snapshot.stageRemainingMs
+    val elapsed = snapshot.stageElapsedMs
+    if (remaining != null && (remaining + elapsed) > 0) elapsed.toFloat() / (remaining + elapsed) else 0f
+}.coerceIn(0f, 1f)
+
+/** The big clock value every face shows: prep countdown, count-up, or the normal countdown. */
+private fun bigTimeMs(snapshot: SessionSnapshot): Long = when {
+    snapshot.status == SessionStatus.PREPARING -> snapshot.stageRemainingMs ?: 0
+    isCountingUp(snapshot) -> snapshot.countUpMs
+    else -> snapshot.remainingMs
+}
+
+@Composable
+private fun TimeAndStatus(snapshot: SessionSnapshot, timeStyle: androidx.compose.ui.text.TextStyle) {
+    Text(text = Format.clock(bigTimeMs(snapshot)), style = timeStyle)
+    Text(
+        text = statusLabel(snapshot),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+    )
+}
+
+/** A slim linear bar instead of the circular ring — easier to read at a glance, less ornamental. */
+@Composable
+private fun DigitsFace(snapshot: SessionSnapshot) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth(0.8f)) {
+        TimeAndStatus(snapshot, MaterialTheme.typography.displayLarge.copy(fontSize = 64.sp))
+        Spacer(Modifier.height(20.dp))
+        LinearProgressIndicator(
+            progress = { if (isCountingUp(snapshot)) 1f else stageFraction(snapshot) },
+            modifier = Modifier.fillMaxWidth().height(6.dp),
+        )
+    }
+}
+
+/** No ring, no bar — just the numbers, for the least visual chrome during a sit. */
+@Composable
+private fun MinimalFace(snapshot: SessionSnapshot) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        TimeAndStatus(snapshot, MaterialTheme.typography.displayLarge.copy(fontSize = 72.sp))
+    }
+}
+
 @Composable
 private fun ProgressRing(snapshot: SessionSnapshot, breathScale: Float = 1f) {
-    val countingUp = snapshot.status == SessionStatus.OVERTIME || snapshot.remainingMs <= 0
-    val fraction = run {
-        val remaining = snapshot.stageRemainingMs
-        val elapsed = snapshot.stageElapsedMs
-        if (remaining != null && (remaining + elapsed) > 0) elapsed.toFloat() / (remaining + elapsed) else 0f
-    }.coerceIn(0f, 1f)
+    val countingUp = isCountingUp(snapshot)
+    val fraction = stageFraction(snapshot)
 
     val ringColor = MaterialTheme.colorScheme.primary
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
@@ -165,22 +216,7 @@ private fun ProgressRing(snapshot: SessionSnapshot, breathScale: Float = 1f) {
             drawArc(ringColor, 0f, 360f * (if (countingUp) 1f else fraction), false, topLeft, arcSize, style = stroke)
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            val big = when {
-                snapshot.status == SessionStatus.PREPARING -> snapshot.stageRemainingMs ?: 0
-                countingUp -> snapshot.countUpMs
-                else -> snapshot.remainingMs
-            }
-            Text(
-                text = Format.clock(big),
-                fontSize = 56.sp,
-                style = MaterialTheme.typography.displayLarge,
-            )
-            Text(
-                text = statusLabel(snapshot),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
+            TimeAndStatus(snapshot, MaterialTheme.typography.displayLarge.copy(fontSize = 56.sp))
         }
     }
 }
