@@ -189,6 +189,12 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
         return presets.value.firstOrNull { it.id == id }
     }
 
+    // ---- On-device recommendations ---------------------------------------------------------
+
+    /** A dismissible-per-session heuristic nudge (brief §17), or null if history is too thin. */
+    fun recommendationNow(): com.meditation.core.Recommendation? =
+        com.meditation.core.Recommendations.suggest(history.value, presets.value, System.currentTimeMillis())
+
     private fun parseAutoPresetRules(json: String): List<AutoPresetRule> = runCatching {
         com.meditation.app.data.AppJson.decodeFromString(
             kotlinx.serialization.builtins.ListSerializer(AutoPresetRule.serializer()), json,

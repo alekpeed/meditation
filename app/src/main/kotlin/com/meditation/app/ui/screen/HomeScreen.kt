@@ -44,6 +44,8 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
     val presets by vm.presets.collectAsStateWithLifecycle()
     val autoRules by vm.autoPresetRules.collectAsStateWithLifecycle()
     val suggested = remember(autoRules, presets) { vm.suggestedPresetNow() }
+    var recommendationDismissed by remember { mutableStateOf(false) }
+    val recommendation = remember(history, presets) { vm.recommendationNow() }
 
     var durationMs by remember { mutableLongStateOf(prefs.defaultDurationMs) }
     var withPrep by remember { mutableStateOf(false) }
@@ -80,6 +82,37 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                         )
                     }
                     Button(onClick = { vm.start(preset) }) { Text("Start") }
+                }
+            }
+        }
+
+        val recommendationDuplicatesAutoSuggestion =
+            recommendation?.presetId != null && suggested != null && recommendation.presetId == suggested.id
+        if (!recommendationDismissed && recommendation != null && !recommendationDuplicatesAutoSuggestion) {
+            Card(Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(recommendation.message, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val recPreset = recommendation.presetId?.let { id -> presets.firstOrNull { it.id == id } }
+                        Button(onClick = {
+                            when {
+                                recPreset != null -> vm.start(recPreset)
+                                recommendation.suggestedDurationMs != null -> vm.startQuickSession(
+                                    durationMs = recommendation.suggestedDurationMs,
+                                    preparationMs = 0,
+                                    openingSoundId = openingBell?.id,
+                                    intervalSoundId = null,
+                                    intervalEveryMs = null,
+                                    closingSoundId = openingBell?.id,
+                                    ambienceSoundId = null,
+                                    overtimeMode = OvertimeMode.STOP,
+                                )
+                            }
+                            recommendationDismissed = true
+                        }) { Text("Start") }
+                        androidx.compose.material3.TextButton(onClick = { recommendationDismissed = true }) { Text("Not now") }
+                    }
                 }
             }
         }
