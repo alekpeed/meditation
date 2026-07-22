@@ -84,6 +84,18 @@ class NoiseGenerator(private val config: GeneratorConfig) {
             val freq = config.frequencyHz ?: 110.0
             val freq2 = config.secondFrequencyHz ?: 165.0
             val mix = (config.mix ?: 0.5)
+            // "generative" state: a small ensemble of detuned tones whose pitch and level each
+            // drift toward a fresh random target every few seconds (smoothed, never a jump), so the
+            // pad slowly evolves and never audibly loops.
+            val genRoot = config.frequencyHz ?: 110.0
+            val genRatios = doubleArrayOf(1.0, 1.5, 2.0, 0.75)
+            val genPhase = DoubleArray(genRatios.size)
+            val genFreqOffset = DoubleArray(genRatios.size)
+            val genFreqTarget = DoubleArray(genRatios.size)
+            val genAmp = DoubleArray(genRatios.size) { 0.5 }
+            val genAmpTarget = DoubleArray(genRatios.size) { 0.5 }
+            val genCountdown = IntArray(genRatios.size) { (sampleRate * 2) }
+            val genRandom = kotlin.random.Random(System.nanoTime())
             while (running) {
                 for (i in buffer.indices) {
                     val sample = when (config.type) {
@@ -123,6 +135,26 @@ class NoiseGenerator(private val config: GeneratorConfig) {
                             if (phase > 2 * PI) phase -= 2 * PI
                             if (phase2 > 2 * PI) phase2 -= 2 * PI
                             ((1 - mix) * sin(phase) + mix * sin(phase2)).toFloat()
+                        }
+                        "generative" -> {
+                            var mixed = 0.0
+                            for (v in genRatios.indices) {
+                                if (genCountdown[v] <= 0) {
+                                    genFreqTarget[v] = genRandom.nextDouble(-4.0, 4.0)
+                                    genAmpTarget[v] = genRandom.nextDouble(0.25, 1.0)
+                                    genCountdown[v] = sampleRate * genRandom.nextInt(3, 9)
+                                }
+                                genCountdown[v]--
+                                // Exponential smoothing toward the current target — an inaudibly
+                                // slow glide, never a step, so nothing sounds like a "note change".
+                                genFreqOffset[v] += (genFreqTarget[v] - genFreqOffset[v]) * 0.000004
+                                genAmp[v] += (genAmpTarget[v] - genAmp[v]) * 0.000004
+                                val voiceFreq = genRoot * genRatios[v] + genFreqOffset[v]
+                                genPhase[v] += 2 * PI * voiceFreq / sampleRate
+                                if (genPhase[v] > 2 * PI) genPhase[v] -= 2 * PI
+                                mixed += sin(genPhase[v]) * genAmp[v]
+                            }
+                            (mixed / genRatios.size).toFloat()
                         }
                         else -> whiteSample()
                     }
