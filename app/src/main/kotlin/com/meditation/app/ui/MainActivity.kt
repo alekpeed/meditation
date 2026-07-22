@@ -43,6 +43,7 @@ import com.meditation.app.ui.screen.BreathingScreen
 import com.meditation.app.ui.screen.CounterScreen
 import com.meditation.app.ui.screen.HistoryDetailScreen
 import com.meditation.app.ui.screen.HistoryScreen
+import com.meditation.app.ui.screen.DroneEditorScreen
 import com.meditation.app.ui.screen.HomeScreen
 import com.meditation.app.ui.screen.RetreatBuilderScreen
 import com.meditation.app.ui.screen.SessionBuilderScreen
@@ -50,6 +51,7 @@ import com.meditation.app.ui.screen.SessionsScreen
 import com.meditation.app.ui.screen.SettingsScreen
 import com.meditation.app.ui.screen.SoundscapeMixerScreen
 import com.meditation.app.ui.screen.SoundsScreen
+import com.meditation.app.ui.screen.VoiceEditorScreen
 import com.meditation.app.ui.screen.StatisticsScreen
 import com.meditation.app.ui.theme.MeditationTheme
 
@@ -131,7 +133,14 @@ private fun RootScaffold(vm: MeditationViewModel) {
                     onOpenRetreatBuilder = { navController.navigate("retreat_builder") },
                 )
             }
-            composable(Dest.Sounds.route) { SoundsScreen(vm, onOpenMixer = { navController.navigate("soundscape_mixer") }) }
+            composable(Dest.Sounds.route) {
+                SoundsScreen(
+                    vm,
+                    onOpenMixer = { navController.navigate("soundscape_mixer") },
+                    onOpenDroneEditor = { navController.navigate("drone_editor") },
+                    onOpenVoiceEditor = { navController.navigate("voice_editor") },
+                )
+            }
             composable(Dest.History.route) {
                 HistoryScreen(vm, onOpen = { id -> navController.navigate("history_detail/$id") })
             }
@@ -155,6 +164,8 @@ private fun RootScaffold(vm: MeditationViewModel) {
             }
             composable("retreat_builder") { RetreatBuilderScreen(vm, onDone = { navController.popBackStack() }) }
             composable("soundscape_mixer") { SoundscapeMixerScreen(vm, onDone = { navController.popBackStack() }) }
+            composable("drone_editor") { DroneEditorScreen(vm, onDone = { navController.popBackStack() }) }
+            composable("voice_editor") { VoiceEditorScreen(vm, onDone = { navController.popBackStack() }) }
             composable("statistics") { StatisticsScreen(vm, onBack = { navController.popBackStack() }) }
             composable("breathing") { BreathingScreen(onBack = { navController.popBackStack() }) }
             composable("counter") { CounterScreen(onBack = { navController.popBackStack() }) }

@@ -56,6 +56,62 @@ class SoundRepository(private val dao: SoundDao, private val attributionDao: Att
     suspend fun attributionById(id: String): Attribution? = attributionDao.byId(id)?.toDomain()
     suspend fun setFavorite(id: String, favorite: Boolean) = dao.setFavorite(id, favorite)
 
+    /**
+     * Insert a user-authored procedural drone/ambience sound (the drone editor). Just another row
+     * in the existing `sounds` table — no Room migration needed. Plays through the same
+     * NoiseGenerator path as the bundled generated sounds since [config] is non-null.
+     */
+    suspend fun addCustomDrone(
+        id: String,
+        name: String,
+        category: com.meditation.core.SoundCategory,
+        config: com.meditation.core.GeneratorConfig,
+    ) {
+        dao.upsertAll(listOf(
+            SoundEntity(
+                id = id, name = name, category = category.name, sourceType = "GENERATED",
+                fileUri = null,
+                generatorConfigJson = AppJson.encodeToString(com.meditation.core.GeneratorConfig.serializer(), config),
+                imageAssetId = null, durationMs = null, defaultVolume = config.gain,
+                tagsJson = AppJson.encodeToString(listOf("custom")),
+                description = "Custom drone",
+                rolesJson = AppJson.encodeToString(listOf(com.meditation.core.SoundRole.AMBIENCE.name)),
+                attributionId = null, favorite = false,
+            ),
+        ))
+    }
+
+    /**
+     * Insert a user-authored strike voice (the bowl/chime editor): a category plus descriptive
+     * [tags] that [com.meditation.app.audio.ToneSynth]'s existing tag inference already understands
+     * (bright/deep/warm/soft/airy/clear/high/low). No fileUri and no generatorConfig, so it plays
+     * through the same synthesized-strike fallback every other tagless bundled sound uses.
+     */
+    suspend fun addCustomStrikeVoice(
+        id: String,
+        name: String,
+        category: com.meditation.core.SoundCategory,
+        tags: List<String>,
+    ) {
+        dao.upsertAll(listOf(
+            SoundEntity(
+                id = id, name = name, category = category.name, sourceType = "GENERATED",
+                fileUri = null, generatorConfigJson = null,
+                imageAssetId = null, durationMs = null, defaultVolume = 0.8,
+                tagsJson = AppJson.encodeToString(tags),
+                description = "Custom synthesized voice",
+                rolesJson = AppJson.encodeToString(
+                    listOf(
+                        com.meditation.core.SoundRole.OPENING.name,
+                        com.meditation.core.SoundRole.INTERVAL.name,
+                        com.meditation.core.SoundRole.CLOSING.name,
+                    ),
+                ),
+                attributionId = null, favorite = false,
+            ),
+        ))
+    }
+
     /** Seed the bundled catalog on first launch; a no-op once populated. */
     suspend fun seedIfEmpty(context: Context) {
         if (dao.count() > 0) return

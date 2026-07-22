@@ -48,6 +48,7 @@ class AudioController(
     // session's audio (brief §11). previewMix supports the ambient mixer's multi-layer preview.
     private val previewExos = LinkedHashMap<String, ExoPlayer>()
     private val previewNoises = LinkedHashMap<String, NoiseGenerator>()
+    private var configPreviewGen: NoiseGenerator? = null
 
     init {
         focus.onDuck = { recorded.values.forEach { it.duck() } }
@@ -161,12 +162,31 @@ class AudioController(
         }
     }
 
+    /**
+     * Live-preview a generator config before it's saved as a sound (the drone editor). Independent
+     * of [previewSound] since there's no soundId yet to look up.
+     */
+    fun previewGeneratorConfig(config: com.meditation.core.GeneratorConfig, volume: Double) {
+        configPreviewGen?.stop()
+        configPreviewGen = NoiseGenerator(config).apply { setGain(volume); start() }
+    }
+
+    /**
+     * Live-preview a not-yet-saved strike voice (the bowl/chime editor) by synthesizing it directly
+     * from an in-memory [asset] — no Room row required.
+     */
+    fun previewSynthAsset(asset: SoundAsset, volume: Double) {
+        if (synth.canVoice(asset.category)) synth.strike(asset, volume.toFloat().coerceIn(0f, 1f), 1, 0)
+    }
+
     fun stopPreview() {
         val exos = previewExos.values.toList()
         previewExos.clear()
         if (exos.isNotEmpty()) mainScope.launch { exos.forEach { runCatching { it.release() } } }
         previewNoises.values.forEach { it.stop() }
         previewNoises.clear()
+        configPreviewGen?.stop()
+        configPreviewGen = null
     }
 
     fun stopAll() {

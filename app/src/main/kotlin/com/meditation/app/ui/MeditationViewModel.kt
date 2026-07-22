@@ -247,6 +247,29 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
     fun previewMix(layers: List<Pair<String, Double>>) = container.controller.previewMix(layers)
     fun stopPreview() = container.controller.stopPreview()
 
+    // ---- Custom sound lab: drone editor + bowl/chime editor --------------------------------
+
+    fun previewGeneratorConfig(config: com.meditation.core.GeneratorConfig, volume: Double = 0.6) =
+        container.audio.previewGeneratorConfig(config, volume)
+
+    fun previewSynthAsset(category: com.meditation.core.SoundCategory, tags: List<String>, volume: Double = 0.8) {
+        val temp = SoundAsset(
+            id = "preview-temp", name = "Preview", category = category,
+            sourceType = com.meditation.core.SoundSourceType.GENERATED, tags = tags,
+        )
+        container.audio.previewSynthAsset(temp, volume)
+    }
+
+    fun saveCustomDrone(name: String, config: com.meditation.core.GeneratorConfig, category: com.meditation.core.SoundCategory) =
+        viewModelScope.launch {
+            container.soundRepository.addCustomDrone("custom-drone-${UUID.randomUUID()}", name.ifBlank { "Custom drone" }, category, config)
+        }
+
+    fun saveCustomStrikeVoice(name: String, category: com.meditation.core.SoundCategory, tags: List<String>) =
+        viewModelScope.launch {
+            container.soundRepository.addCustomStrikeVoice("custom-voice-${UUID.randomUUID()}", name.ifBlank { "Custom voice" }, category, tags)
+        }
+
     // Export uses the pure core formatter; the caller writes the returned bytes to a SAF document.
     fun exportJson(): String = com.meditation.core.HistoryExport.toJson(history.value)
     fun exportCsv(): String = com.meditation.core.HistoryExport.toCsv(history.value)
