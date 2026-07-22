@@ -24,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -59,6 +60,16 @@ class MeditationController(
     val snapshot: StateFlow<SessionSnapshot?> = _snapshot.asStateFlow()
 
     val hasActiveSession: Boolean get() = state?.isActive == true
+
+    // Speech is optional presentation. Keep its preference hot in memory so an announcement
+    // never performs DataStore I/O while holding the authoritative timing mutex.
+    private val spokenCuesEnabled = MutableStateFlow(false)
+
+    init {
+        scope.launch {
+            prefs.preferences.collect { spokenCuesEnabled.value = it.spokenCuesEnabled }
+        }
+    }
 
     // ---- Commands -------------------------------------------------------------------------
 
@@ -204,7 +215,7 @@ class MeditationController(
                 ),
             )
             notifications.showCompletion(terminal.preset.name)
-            if (prefs.currentPrefs().spokenCuesEnabled) tts.announceComplete(true)
+            tts.announceComplete(spokenCuesEnabled.value)
         }
         pendingNote = null; pendingTags = emptyList(); pendingMood = null
         activeRepo.clear()
@@ -256,7 +267,7 @@ class MeditationController(
         val newIdx = newState.currentStageIndex
         if (newIdx < 0 || newIdx == previousIdx) return
         val stage = newState.preset.stages.getOrNull(newIdx) ?: return
-        if (prefs.currentPrefs().spokenCuesEnabled) tts.announceStage(stage, enabled = true)
+        tts.announceStage(stage, enabled = spokenCuesEnabled.value)
     }
 
     /** Next moment the engine needs to act: the sooner of stage end and next interval. */

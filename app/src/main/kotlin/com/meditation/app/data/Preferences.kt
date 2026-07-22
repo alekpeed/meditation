@@ -10,10 +10,12 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.meditation.core.OvertimeMode
+import com.meditation.core.SavedAmbienceMix
 import com.meditation.core.VolumeSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.ListSerializer
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -89,6 +91,13 @@ class PreferencesRepository(private val context: Context) {
     suspend fun setSpokenCuesEnabled(on: Boolean) = edit { it[Keys.spokenCuesEnabled] = if (on) 1 else 0 }
     suspend fun setAutoPresetRules(json: String) = edit { it[Keys.autoPresetRules] = json }
     suspend fun setSavedMixes(json: String) = edit { it[Keys.savedMixes] = json }
+    /** Atomically transform saved mixes so rapid save/delete taps cannot lose another change. */
+    suspend fun updateSavedMixes(transform: (List<SavedAmbienceMix>) -> List<SavedAmbienceMix>) = edit { p ->
+        val existing = runCatching {
+            AppJson.decodeFromString(ListSerializer(SavedAmbienceMix.serializer()), p[Keys.savedMixes] ?: "[]")
+        }.getOrDefault(emptyList())
+        p[Keys.savedMixes] = AppJson.encodeToString(ListSerializer(SavedAmbienceMix.serializer()), transform(existing))
+    }
     suspend fun currentPrefs(): UserPreferences = preferences.first()
     suspend fun setResumeAuto(on: Boolean) = edit { it[Keys.resumeAuto] = if (on) 1 else 0 }
 

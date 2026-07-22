@@ -167,6 +167,19 @@ docs/  (specs the app was built from), README.md
 
 ## 6. Caveats / state
 
+### Runtime-safety safeguards (July 2026)
+
+- **DND restoration is durable:** the original interruption filter and an ownership marker are
+  committed to app-private preferences before the app changes DND. Terminal handling (including
+  process-death recovery) restores and clears that marker only after Android accepts the restore.
+- **Speech is non-authoritative:** `MeditationController` maintains the spoken-cues setting in
+  memory and only dispatches TTS after the engine has decided a transition. TTS is serialized on
+  the main dispatcher; it must never block the timing mutex or mutate its pending queue from a
+  callback thread.
+- **Saved mixer JSON is transactionally updated:** add/remove operations decode and rewrite the
+  current DataStore value inside one edit transaction. Invalid JSON still degrades to an empty
+  list, rather than crashing the UI.
+
 - **Compile-verified only.** No device or emulator was ever available in these sessions. The whole
   `:app` module is confirmed to *compile* via CI, and `:core` is unit-tested, but UI/audio has not
   been runtime-tested on hardware. The user tests by installing the APK.

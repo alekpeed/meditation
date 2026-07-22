@@ -216,19 +216,11 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
             name = name.ifBlank { "Untitled mix" },
             layers = layers.take(3).map { (id, vol) -> com.meditation.core.AmbienceLayer(id, vol) },
         )
-        val updated = savedMixes.value + mix
-        persistSavedMixes(updated)
+        container.preferencesRepository.updateSavedMixes { it + mix }
     }
 
     fun deleteMix(id: String) = viewModelScope.launch {
-        persistSavedMixes(savedMixes.value.filterNot { it.id == id })
-    }
-
-    private suspend fun persistSavedMixes(mixes: List<SavedAmbienceMix>) {
-        val json = com.meditation.app.data.AppJson.encodeToString(
-            kotlinx.serialization.builtins.ListSerializer(SavedAmbienceMix.serializer()), mixes,
-        )
-        container.preferencesRepository.setSavedMixes(json)
+        container.preferencesRepository.updateSavedMixes { mixes -> mixes.filterNot { it.id == id } }
     }
 
     private fun parseSavedMixes(json: String): List<SavedAmbienceMix> = runCatching {
