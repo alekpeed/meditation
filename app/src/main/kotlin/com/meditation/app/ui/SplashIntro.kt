@@ -1,5 +1,6 @@
 package com.meditation.app.ui
 
+import android.net.Uri
 import android.view.TextureView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,26 +19,38 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.RawResourceDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import com.meditation.app.R
+import java.io.File
 
 /**
- * Full-screen launch intro: plays the bundled animation (with sound) once via ExoPlayer, then calls
- * [onFinished] to hand off to the app. Tapping anywhere skips it. Purely cosmetic — it never touches
- * the session-timing core. The player is created and released with the composition, on the main
- * thread (ExoPlayer requirement).
+ * Full-screen launch intro: plays the bundled animation (with sound) once, then calls [onFinished]
+ * to hand off to the app. Tapping anywhere skips it; any playback error also proceeds so the user
+ * is never trapped on the splash. Purely cosmetic — never touches the session-timing core.
+ *
+ * Playback details that matter:
+ * - The clip is copied to a cache file and played from disk, which sidesteps compressed-resource /
+ *   file-descriptor problems that make res/raw playback fail silently.
+ * - Rendered onto a [TextureView] (not a SurfaceView), so it composites inline and is actually
+ *   visible inside the opaque Compose surface.
+ * - ExoPlayer is created and released with the composition, on the main thread.
  */
-@OptIn(UnstableApi::class)
 @Composable
 fun SplashIntro(onFinished: () -> Unit) {
     val context = LocalContext.current
     val finish by rememberUpdatedState(onFinished)
 
     val player = remember {
+        val file = File(context.cacheDir, "splash_intro.mp4")
+        runCatching {
+            if (!file.exists() || file.length() == 0L) {
+                context.resources.openRawResource(R.raw.splash_intro).use { input ->
+                    file.outputStream().use { output -> input.copyTo(output) }
+                }
+            }
+        }
         ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(RawResourceDataSource.buildRawResourceUri(R.raw.splash_intro)))
+            setMediaItem(MediaItem.fromUri(Uri.fromFile(file)))
             repeatMode = Player.REPEAT_MODE_OFF
             playWhenReady = true
             prepare()
@@ -50,7 +63,6 @@ fun SplashIntro(onFinished: () -> Unit) {
                 if (playbackState == Player.STATE_ENDED) finish()
             }
             override fun onPlayerError(error: PlaybackException) {
-                // If the clip can't play for any reason, don't trap the user on the splash.
                 finish()
             }
         }
