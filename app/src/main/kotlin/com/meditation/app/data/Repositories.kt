@@ -132,6 +132,17 @@ class SoundRepository(private val dao: SoundDao, private val attributionDao: Att
     }
 
     /**
+     * Remove bundled catalog sounds that no longer ship in the manifest (e.g. a bundled sound
+     * dropped in an update). Only BUNDLED rows are considered, so the user's imported (IMPORTED)
+     * and custom drone/voice (GENERATED) sounds are never touched. Dangling references from a
+     * preset or saved mix to a removed sound are already skipped gracefully at playback time.
+     */
+    suspend fun pruneRemovedBundled(context: Context) {
+        val catalogIds = AssetCatalog.loadSounds(context).map { it.id }.toSet()
+        dao.bundled().forEach { if (it.id !in catalogIds) dao.deleteById(it.id) }
+    }
+
+    /**
      * Copy a user-selected audio file into app-private storage and register it as an imported sound.
      * The file is copied (not merely referenced) so it survives even if the original URI is revoked;
      * nothing is ever uploaded (brief §9.4, §22). Returns the new sound id, or null on failure.
