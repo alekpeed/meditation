@@ -180,6 +180,16 @@
     "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
+    "id": "attr-ambience-cafe-french-01",
+    "creator": "Toybox",
+    "title": "Paris Mont Marte",
+    "sourceName": "Freesound",
+    "sourcePage": "https://freesound.org/people/Toybox/sounds/707975/",
+    "licenseName": "CC0 1.0 Universal",
+    "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modifications": "Downloaded the CC0 high-quality preview; took a steady section, assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV."
+  },
+  {
     "id": "attr-ambience-drone-low-01",
     "creator": "kickhat",
     "title": "Ambient Drone 21.07.2018.wav",

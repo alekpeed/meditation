@@ -369,6 +369,25 @@
     "attributionId": "attr-ambience-drone-low-01"
   },
   {
+    "id": "ambience-cafe-french-01",
+    "name": "French Café",
+    "category": "ambience",
+    "sourceType": "bundled",
+    "filename": "ambience-cafe-french-01.wav",
+    "imageAssetId": "image-ambience-cafe-01",
+    "defaultVolume": 0.6,
+    "tags": [
+      "lively",
+      "warm",
+      "chatter"
+    ],
+    "description": "Relaxed Parisian café murmur — conversation, cups, distant street.",
+    "roles": [
+      "ambience"
+    ],
+    "attributionId": "attr-ambience-cafe-french-01"
+  },
+  {
     "id": "generated-white-noise",
     "name": "White Noise",
     "category": "noise",
