@@ -77,6 +77,12 @@ interface SoundDao {
     @Query("SELECT * FROM sounds WHERE id = :id")
     suspend fun byId(id: String): SoundEntity?
 
+    @Query("SELECT * FROM sounds WHERE sourceType = 'BUNDLED'")
+    suspend fun bundled(): List<SoundEntity>
+
+    @Query("DELETE FROM sounds WHERE id = :id")
+    suspend fun deleteById(id: String)
+
     @Upsert
     suspend fun upsertAll(sounds: List<SoundEntity>)
 
