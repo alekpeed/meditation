@@ -62,7 +62,7 @@ android {
         // and ExoPlayer's random-access AssetDataSource cannot read a compressed asset — which
         // makes the recorded ambience loops play silently while the uncompressed .wav strikes
         // (same playback path) work fine.
-        noCompress += listOf("ogg", "wav")
+        noCompress += listOf("ogg", "wav", "mp4")
     }
 }
 

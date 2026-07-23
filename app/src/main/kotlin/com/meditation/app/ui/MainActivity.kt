@@ -25,6 +25,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -71,7 +74,13 @@ class MainActivity : ComponentActivity() {
             val prefs by vm.preferences.collectAsStateWithLifecycle()
             MeditationTheme(themeMode = prefs.theme, paletteKey = prefs.palette) {
                 Surface {
-                    RootScaffold(vm)
+                    // Play the animated launch intro once per cold start, then reveal the app.
+                    var splashDone by rememberSaveable { mutableStateOf(false) }
+                    if (splashDone) {
+                        RootScaffold(vm)
+                    } else {
+                        SplashIntro(onFinished = { splashDone = true })
+                    }
                 }
             }
         }
