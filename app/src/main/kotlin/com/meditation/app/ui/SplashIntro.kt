@@ -1,6 +1,6 @@
 package com.meditation.app.ui
 
-import android.view.SurfaceView
+import android.view.TextureView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -68,7 +68,7 @@ fun SplashIntro(onFinished: () -> Unit) {
             ) { finish() },
     ) {
         AndroidView(
-            factory = { ctx -> SurfaceView(ctx).also { player.setVideoSurfaceView(it) } },
+            factory = { ctx -> TextureView(ctx).also { player.setVideoTextureView(it) } },
             modifier = Modifier.fillMaxSize(),
         )
     }
