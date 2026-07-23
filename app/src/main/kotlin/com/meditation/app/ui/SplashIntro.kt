@@ -41,10 +41,10 @@ fun SplashIntro(onFinished: () -> Unit) {
     val finish by rememberUpdatedState(onFinished)
 
     val player = remember {
-        val file = File(context.cacheDir, "splash_intro.mp4")
+        val file = File(context.cacheDir, "splash_main.mp4")
         runCatching {
             if (!file.exists() || file.length() == 0L) {
-                context.resources.openRawResource(R.raw.splash_intro).use { input ->
+                context.resources.openRawResource(R.raw.splash_main).use { input ->
                     file.outputStream().use { output -> input.copyTo(output) }
                 }
             }
