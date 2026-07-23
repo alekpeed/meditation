@@ -1,13 +1,13 @@
 [
   {
     "id": "attr-bell-clear-small-01",
-    "creator": "NikoletB",
-    "title": "Little bell",
+    "creator": "steffcaffrey",
+    "title": "Tingsha Cymbal",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/NikoletB/sounds/846674/",
+    "sourcePage": "https://freesound.org/people/steffcaffrey/sounds/435074/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the single strike (leading and trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bell-soft-small-01",
@@ -17,7 +17,7 @@
     "sourcePage": "https://freesound.org/people/Fenodyrie/sounds/583947/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to a single clean ring (the source's repeated strikes and surrounding silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bell-temple-medium-01",
@@ -27,7 +27,7 @@
     "sourcePage": "https://freesound.org/people/nahmandub/sounds/131348/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the single strike and its natural decay (trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bowl-light-01",
@@ -37,7 +37,7 @@
     "sourcePage": "https://freesound.org/people/hollandm/sounds/573805/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the strike and its decay (leading and trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bowl-medium-01",
@@ -47,7 +47,7 @@
     "sourcePage": "https://freesound.org/people/brodjaman/sounds/204917/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the strike and its decay (trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bowl-deep-01",
@@ -57,7 +57,7 @@
     "sourcePage": "https://freesound.org/people/zambolino/sounds/699447/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the strike and its decay (2.2s of leading silence and the trailing silence removed), peak-normalized to -1.9 dBFS, and given a short end fade."
   },
   {
     "id": "attr-gong-small-01",
@@ -67,7 +67,7 @@
     "sourcePage": "https://freesound.org/people/gevaroy/sounds/347383/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the first gong strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-gong-medium-01",
@@ -77,17 +77,17 @@
     "sourcePage": "https://freesound.org/people/gevaroy/sounds/347382/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the gong swell and its decay (mallet-handling noise before the strike removed), peak-normalized, and given a short end fade."
   },
   {
     "id": "attr-gong-deep-01",
-    "creator": "CVLTIV8R",
-    "title": "Scrap Gong in Alien Landscape",
+    "creator": "Vurca",
+    "title": "Montbell (Bonsho) von Japan",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/CVLTIV8R/sounds/839818/",
+    "sourcePage": "https://freesound.org/people/Vurca/sounds/397352/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the temple-bell (bonsho) strike and its long decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-wood-block-01",
@@ -97,7 +97,7 @@
     "sourcePage": "https://freesound.org/people/thomasjaunism/sounds/218461/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to just the strike (trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-wood-mokugyo-01",
@@ -107,7 +107,7 @@
     "sourcePage": "https://freesound.org/people/jonopodmore/sounds/607215/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to just the single wooden-fish strike (trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-crystal-soft-01",
@@ -117,17 +117,17 @@
     "sourcePage": "https://freesound.org/people/matthewHoldenSound/sounds/542561/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the ping and its shimmer (the ~6s of trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-completion-soft-01",
-    "creator": "hans",
-    "title": "softsmoothbell.wav",
+    "creator": "fauxpress",
+    "title": "Bell Meditation.mp3",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/hans/sounds/61683/",
+    "sourcePage": "https://freesound.org/people/fauxpress/sounds/42095/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; converted to mono PCM WAV, trimmed/padded to the catalog duration, loudness-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the single soft bell strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-ambience-rain-steady-01",
@@ -137,7 +137,7 @@
     "sourcePage": "https://freesound.org/people/Garuda1982/sounds/852917/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   },
   {
     "id": "attr-ambience-ocean-gentle-01",
@@ -147,7 +147,7 @@
     "sourcePage": "https://freesound.org/people/kkenny101/sounds/852826/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~17s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   },
   {
     "id": "attr-ambience-forest-calm-01",
@@ -157,7 +157,7 @@
     "sourcePage": "https://freesound.org/people/Villehardt/sounds/613995/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   },
   {
     "id": "attr-ambience-fireplace-soft-01",
@@ -167,7 +167,7 @@
     "sourcePage": "https://freesound.org/people/RyanKingArt/sounds/717579/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   },
   {
     "id": "attr-ambience-room-tone-01",
@@ -177,7 +177,7 @@
     "sourcePage": "https://freesound.org/people/Julien_Matthey/sounds/837886/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   },
   {
     "id": "attr-ambience-drone-low-01",
@@ -187,6 +187,6 @@
     "sourcePage": "https://freesound.org/people/kickhat/sounds/435147/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 preview; repeated to a 60-second Ogg Vorbis ambience track and loudness-normalized."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~39s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
   }
 ]

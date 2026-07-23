@@ -6,7 +6,7 @@
     "sourceType": "bundled",
     "filename": "bell-clear-small-01.wav",
     "imageAssetId": "image-bell-clear-01",
-    "durationMs": 4200,
+    "durationMs": 4163,
     "defaultVolume": 0.85,
     "tags": [
       "bright",
@@ -27,7 +27,7 @@
     "sourceType": "bundled",
     "filename": "bell-soft-small-01.wav",
     "imageAssetId": "image-bell-soft-01",
-    "durationMs": 5200,
+    "durationMs": 1354,
     "defaultVolume": 0.8,
     "tags": [
       "soft",
@@ -46,7 +46,7 @@
     "sourceType": "bundled",
     "filename": "bell-temple-medium-01.wav",
     "imageAssetId": "image-bell-temple-01",
-    "durationMs": 8600,
+    "durationMs": 7307,
     "defaultVolume": 0.82,
     "tags": [
       "clear",
@@ -67,7 +67,7 @@
     "sourceType": "bundled",
     "filename": "bowl-light-01.wav",
     "imageAssetId": "image-bowl-light-01",
-    "durationMs": 9800,
+    "durationMs": 11478,
     "defaultVolume": 0.78,
     "tags": [
       "airy",
@@ -87,7 +87,7 @@
     "sourceType": "bundled",
     "filename": "bowl-medium-01.wav",
     "imageAssetId": "image-bowl-medium-01",
-    "durationMs": 11200,
+    "durationMs": 11494,
     "defaultVolume": 0.76,
     "tags": [
       "warm",
@@ -107,7 +107,7 @@
     "sourceType": "bundled",
     "filename": "bowl-deep-bronze-01.wav",
     "imageAssetId": "image-bowl-deep-01",
-    "durationMs": 14500,
+    "durationMs": 15496,
     "defaultVolume": 0.72,
     "tags": [
       "deep",
@@ -130,7 +130,7 @@
     "sourceType": "bundled",
     "filename": "gong-small-01.wav",
     "imageAssetId": "image-gong-small-01",
-    "durationMs": 9200,
+    "durationMs": 11490,
     "defaultVolume": 0.74,
     "tags": [
       "focused",
@@ -149,7 +149,7 @@
     "sourceType": "bundled",
     "filename": "gong-medium-01.wav",
     "imageAssetId": "image-gong-medium-01",
-    "durationMs": 13500,
+    "durationMs": 12471,
     "defaultVolume": 0.72,
     "tags": [
       "broad",
@@ -169,7 +169,7 @@
     "sourceType": "bundled",
     "filename": "gong-deep-01.wav",
     "imageAssetId": "image-gong-deep-01",
-    "durationMs": 18800,
+    "durationMs": 19952,
     "defaultVolume": 0.7,
     "tags": [
       "deep",
@@ -189,7 +189,7 @@
     "sourceType": "bundled",
     "filename": "wood-block-01.wav",
     "imageAssetId": "image-wood-block-01",
-    "durationMs": 900,
+    "durationMs": 466,
     "defaultVolume": 0.8,
     "tags": [
       "dry",
@@ -209,7 +209,7 @@
     "sourceType": "bundled",
     "filename": "wood-mokugyo-01.wav",
     "imageAssetId": "image-wood-mokugyo-01",
-    "durationMs": 1100,
+    "durationMs": 286,
     "defaultVolume": 0.8,
     "tags": [
       "hollow",
@@ -228,7 +228,7 @@
     "sourceType": "bundled",
     "filename": "crystal-soft-01.wav",
     "imageAssetId": "image-crystal-soft-01",
-    "durationMs": 7400,
+    "durationMs": 1069,
     "defaultVolume": 0.7,
     "tags": [
       "airy",
@@ -248,7 +248,7 @@
     "sourceType": "bundled",
     "filename": "completion-soft-01.wav",
     "imageAssetId": "image-completion-soft-01",
-    "durationMs": 6200,
+    "durationMs": 8943,
     "defaultVolume": 0.75,
     "tags": [
       "soft",
