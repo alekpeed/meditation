@@ -265,7 +265,7 @@
     "name": "Steady Rain",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-rain-steady-01.ogg",
+    "filename": "ambience-rain-steady-01.wav",
     "imageAssetId": "image-ambience-rain-01",
     "defaultVolume": 0.6,
     "tags": [
@@ -283,7 +283,7 @@
     "name": "Gentle Ocean",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-ocean-gentle-01.ogg",
+    "filename": "ambience-ocean-gentle-01.wav",
     "imageAssetId": "image-ambience-ocean-01",
     "defaultVolume": 0.6,
     "tags": [
@@ -301,7 +301,7 @@
     "name": "Calm Forest",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-forest-calm-01.ogg",
+    "filename": "ambience-forest-calm-01.wav",
     "imageAssetId": "image-ambience-forest-01",
     "defaultVolume": 0.58,
     "tags": [
@@ -319,7 +319,7 @@
     "name": "Soft Fireplace",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-fireplace-soft-01.ogg",
+    "filename": "ambience-fireplace-soft-01.wav",
     "imageAssetId": "image-ambience-fire-01",
     "defaultVolume": 0.55,
     "tags": [
@@ -337,7 +337,7 @@
     "name": "Quiet Room",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-room-tone-01.ogg",
+    "filename": "ambience-room-tone-01.wav",
     "imageAssetId": "image-ambience-room-01",
     "defaultVolume": 0.5,
     "tags": [
@@ -355,7 +355,7 @@
     "name": "Low Atmospheric Drone",
     "category": "ambience",
     "sourceType": "bundled",
-    "filename": "ambience-drone-low-01.ogg",
+    "filename": "ambience-drone-low-01.wav",
     "imageAssetId": "image-ambience-drone-01",
     "defaultVolume": 0.55,
     "tags": [

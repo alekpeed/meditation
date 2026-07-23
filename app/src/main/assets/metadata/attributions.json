@@ -137,7 +137,7 @@
     "sourcePage": "https://freesound.org/people/Garuda1982/sounds/852917/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
     "id": "attr-ambience-ocean-gentle-01",
@@ -147,7 +147,7 @@
     "sourcePage": "https://freesound.org/people/kkenny101/sounds/852826/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~17s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~17s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
     "id": "attr-ambience-forest-calm-01",
@@ -157,7 +157,7 @@
     "sourcePage": "https://freesound.org/people/Villehardt/sounds/613995/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
     "id": "attr-ambience-fireplace-soft-01",
@@ -167,7 +167,7 @@
     "sourcePage": "https://freesound.org/people/RyanKingArt/sounds/717579/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
     "id": "attr-ambience-room-tone-01",
@@ -177,7 +177,7 @@
     "sourcePage": "https://freesound.org/people/Julien_Matthey/sounds/837886/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~41s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   },
   {
     "id": "attr-ambience-drone-low-01",
@@ -187,6 +187,6 @@
     "sourcePage": "https://freesound.org/people/kickhat/sounds/435147/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~39s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and encoded as 44.1 kHz stereo Ogg Vorbis."
+    "modifications": "Downloaded the CC0 high-quality preview; assembled a seamless ~22s loop with an equal-power crossfade, loudness-normalized to EBU R128 (I=-23 LUFS, TP=-2 dBTP), and saved as uncompressed 44.1 kHz stereo PCM WAV (kept uncompressed so ExoPlayer reads it reliably from assets)."
   }
 ]
