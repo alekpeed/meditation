@@ -41,10 +41,19 @@ fun SplashIntro(onFinished: () -> Unit) {
     val finish by rememberUpdatedState(onFinished)
 
     val player = remember {
-        val file = File(context.cacheDir, "splash_main.mp4")
+        // Rotate through the three intros in order, one per cold start. The position is persisted
+        // and advanced here so every launch shows the next clip (…intro → main → 3 → intro…).
+        val rotation = listOf(R.raw.splash_intro, R.raw.splash_main, R.raw.splash_3)
+        val prefs = context.getSharedPreferences("splash", android.content.Context.MODE_PRIVATE)
+        val index = ((prefs.getInt("index", 0) % rotation.size) + rotation.size) % rotation.size
+        prefs.edit().putInt("index", (index + 1) % rotation.size).apply()
+        val resId = rotation[index]
+
+        // Play from a per-clip cache file to sidestep compressed-resource / file-descriptor issues.
+        val file = File(context.cacheDir, "splash_rot_$index.mp4")
         runCatching {
             if (!file.exists() || file.length() == 0L) {
-                context.resources.openRawResource(R.raw.splash_main).use { input ->
+                context.resources.openRawResource(resId).use { input ->
                     file.outputStream().use { output -> input.copyTo(output) }
                 }
             }
