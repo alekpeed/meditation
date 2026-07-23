@@ -31,6 +31,7 @@ import com.meditation.app.ui.Format
 import com.meditation.app.ui.MeditationViewModel
 import com.meditation.core.OvertimeMode
 import com.meditation.core.SoundCategory
+import com.meditation.core.SoundRole
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -49,11 +50,21 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
 
     var durationMs by remember { mutableLongStateOf(prefs.defaultDurationMs) }
     var withPrep by remember { mutableStateOf(false) }
-    var withBells by remember { mutableStateOf(true) }
     var withAmbience by remember { mutableStateOf(false) }
 
     val openingBell = remember(sounds) { sounds.firstOrNull { it.category == SoundCategory.BELL } }
     val ambience = remember(sounds) { sounds.firstOrNull { it.category == SoundCategory.AMBIENCE } }
+
+    // Quick-start sound selection. Opening defaults to a bell; closing defaults to the Deep Temple
+    // Gong (falling back to any gong, then the opening bell) so a session ends on the gong unless
+    // the user picks something else. The keyed remember seeds each once the catalog has loaded.
+    val defaultClosingId = remember(sounds) {
+        sounds.firstOrNull { it.id == "gong-deep-01" }?.id
+            ?: sounds.firstOrNull { it.category == SoundCategory.GONG }?.id
+            ?: openingBell?.id
+    }
+    var openingId by remember(openingBell?.id) { mutableStateOf(openingBell?.id) }
+    var closingId by remember(defaultClosingId) { mutableStateOf(defaultClosingId) }
 
     Column(
         modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -133,7 +144,25 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                 }
                 Spacer(Modifier.height(8.dp))
                 ToggleRow("Preparation (10s)", withPrep) { withPrep = it }
-                ToggleRow("Opening & closing bell", withBells) { withBells = it }
+                Spacer(Modifier.height(8.dp))
+                SoundPicker(
+                    label = "Opening sound",
+                    role = SoundRole.OPENING,
+                    sounds = sounds,
+                    selectedId = openingId,
+                    onSelect = { openingId = it },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
+                SoundPicker(
+                    label = "Closing sound",
+                    role = SoundRole.CLOSING,
+                    sounds = sounds,
+                    selectedId = closingId,
+                    onSelect = { closingId = it },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
                 ToggleRow("Ambient sound", withAmbience) { withAmbience = it }
                 Spacer(Modifier.height(12.dp))
                 Button(
@@ -141,10 +170,10 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                         vm.startQuickSession(
                             durationMs = durationMs,
                             preparationMs = if (withPrep) 10_000 else 0,
-                            openingSoundId = openingBell?.id?.takeIf { withBells },
+                            openingSoundId = openingId,
                             intervalSoundId = null,
                             intervalEveryMs = null,
-                            closingSoundId = openingBell?.id?.takeIf { withBells },
+                            closingSoundId = closingId,
                             ambienceSoundId = ambience?.id?.takeIf { withAmbience },
                             overtimeMode = prefs.overtimeMode.takeIf { it != OvertimeMode.STOP } ?: OvertimeMode.STOP,
                         )
