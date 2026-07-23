@@ -87,7 +87,7 @@
     "sourceType": "bundled",
     "filename": "bowl-medium-01.wav",
     "imageAssetId": "image-bowl-medium-01",
-    "durationMs": 11494,
+    "durationMs": 11998,
     "defaultVolume": 0.76,
     "tags": [
       "warm",
@@ -130,7 +130,7 @@
     "sourceType": "bundled",
     "filename": "gong-small-01.wav",
     "imageAssetId": "image-gong-small-01",
-    "durationMs": 11490,
+    "durationMs": 4050,
     "defaultVolume": 0.74,
     "tags": [
       "focused",
@@ -149,7 +149,7 @@
     "sourceType": "bundled",
     "filename": "gong-medium-01.wav",
     "imageAssetId": "image-gong-medium-01",
-    "durationMs": 12471,
+    "durationMs": 14000,
     "defaultVolume": 0.72,
     "tags": [
       "broad",
@@ -169,7 +169,7 @@
     "sourceType": "bundled",
     "filename": "gong-deep-01.wav",
     "imageAssetId": "image-gong-deep-01",
-    "durationMs": 19952,
+    "durationMs": 12604,
     "defaultVolume": 0.7,
     "tags": [
       "deep",

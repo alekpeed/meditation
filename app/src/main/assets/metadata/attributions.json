@@ -41,13 +41,13 @@
   },
   {
     "id": "attr-bowl-medium-01",
-    "creator": "brodjaman",
-    "title": "Singing bowl c tuned",
+    "creator": "dersinnsspace",
+    "title": "Tibetan bowl_center hit.wav",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/brodjaman/sounds/204917/",
+    "sourcePage": "https://freesound.org/people/dersinnsspace/sounds/421829/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the strike and its decay (trailing silence removed), peak-normalized to -1.5 dBFS, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the centered bowl strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-bowl-deep-01",
@@ -61,33 +61,33 @@
   },
   {
     "id": "attr-gong-small-01",
-    "creator": "gevaroy",
-    "title": "Gong 1.wav",
+    "creator": "Yin_Yang_Jake007",
+    "title": "Gong.wav",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/gevaroy/sounds/347383/",
+    "sourcePage": "https://freesound.org/people/Yin_Yang_Jake007/sounds/406109/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the first gong strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the single bright gong strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-gong-medium-01",
-    "creator": "gevaroy",
-    "title": "Gong 2.wav",
+    "creator": "Logicogonist",
+    "title": "French gong 2",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/gevaroy/sounds/347382/",
+    "sourcePage": "https://freesound.org/people/Logicogonist/sounds/735855/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the gong swell and its decay (mallet-handling noise before the strike removed), peak-normalized, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the broad gong strike and its decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-gong-deep-01",
-    "creator": "Vurca",
-    "title": "Montbell (Bonsho) von Japan",
+    "creator": "tec_studio",
+    "title": "temple_bell_002.wav",
     "sourceName": "Freesound",
-    "sourcePage": "https://freesound.org/people/Vurca/sounds/397352/",
+    "sourcePage": "https://freesound.org/people/tec_studio/sounds/668647/",
     "licenseName": "CC0 1.0 Universal",
     "licensePage": "https://creativecommons.org/publicdomain/zero/1.0/",
-    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to isolate the temple-bell (bonsho) strike and its long decay, peak-normalized to -1.5 dBFS, and given a short end fade."
+    "modifications": "Downloaded the CC0 high-quality preview; converted to mono 44.1 kHz PCM WAV, clipped to the deep temple-gong strike and its long decay, peak-normalized to -1.5 dBFS, and given a short end fade."
   },
   {
     "id": "attr-wood-block-01",
