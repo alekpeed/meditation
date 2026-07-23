@@ -369,6 +369,25 @@
     "attributionId": "attr-ambience-drone-low-01"
   },
   {
+    "id": "ambience-train-01",
+    "name": "Passenger Train",
+    "category": "ambience",
+    "sourceType": "bundled",
+    "filename": "ambience-train-01.wav",
+    "imageAssetId": "image-ambience-train-01",
+    "defaultVolume": 0.6,
+    "tags": [
+      "rhythmic",
+      "immersive",
+      "travel"
+    ],
+    "description": "Riding inside a passenger train — the steady rhythm of wheels on rails.",
+    "roles": [
+      "ambience"
+    ],
+    "attributionId": "attr-ambience-train-01"
+  },
+  {
     "id": "generated-white-noise",
     "name": "White Noise",
     "category": "noise",
