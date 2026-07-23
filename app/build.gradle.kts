@@ -57,6 +57,13 @@ android {
     packaging {
         resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     }
+    androidResources {
+        // Keep bundled audio uncompressed in the APK. AAPT may otherwise DEFLATE .ogg assets,
+        // and ExoPlayer's random-access AssetDataSource cannot read a compressed asset — which
+        // makes the recorded ambience loops play silently while the uncompressed .wav strikes
+        // (same playback path) work fine.
+        noCompress += listOf("ogg", "wav")
+    }
 }
 
 dependencies {
