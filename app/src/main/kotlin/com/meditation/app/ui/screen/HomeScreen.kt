@@ -1,6 +1,7 @@
 package com.meditation.app.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -23,7 +24,9 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,8 +66,14 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
             ?: sounds.firstOrNull { it.category == SoundCategory.GONG }?.id
             ?: openingBell?.id
     }
-    var openingId by remember(openingBell?.id) { mutableStateOf(openingBell?.id) }
     var closingId by remember(defaultClosingId) { mutableStateOf(defaultClosingId) }
+
+    // The gong start button strikes this sound when tapped (it serves as the session's opening).
+    // Defaults to the Deep Temple Gong, falling back to any gong.
+    val gongSoundId = remember(sounds) {
+        sounds.firstOrNull { it.id == "gong-deep-01" }?.id
+            ?: sounds.firstOrNull { it.category == SoundCategory.GONG }?.id
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -146,15 +155,6 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                 ToggleRow("Preparation (10s)", withPrep) { withPrep = it }
                 Spacer(Modifier.height(8.dp))
                 SoundPicker(
-                    label = "Opening sound",
-                    role = SoundRole.OPENING,
-                    sounds = sounds,
-                    selectedId = openingId,
-                    onSelect = { openingId = it },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(8.dp))
-                SoundPicker(
                     label = "Closing sound",
                     role = SoundRole.CLOSING,
                     sounds = sounds,
@@ -164,22 +164,32 @@ fun HomeScreen(vm: MeditationViewModel, onNavigate: (String) -> Unit = {}) {
                 )
                 Spacer(Modifier.height(8.dp))
                 ToggleRow("Ambient sound", withAmbience) { withAmbience = it }
-                Spacer(Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        vm.startQuickSession(
-                            durationMs = durationMs,
-                            preparationMs = if (withPrep) 10_000 else 0,
-                            openingSoundId = openingId,
-                            intervalSoundId = null,
-                            intervalEveryMs = null,
-                            closingSoundId = closingId,
-                            ambienceSoundId = ambience?.id?.takeIf { withAmbience },
-                            overtimeMode = prefs.overtimeMode.takeIf { it != OvertimeMode.STOP } ?: OvertimeMode.STOP,
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text("Start ${Format.durationWords(durationMs)} session") }
+                Spacer(Modifier.height(16.dp))
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    GongStartButton(
+                        label = "Begin",
+                        onStrike = { gongSoundId?.let { vm.strikeGong(it) } },
+                        onStart = {
+                            vm.startQuickSession(
+                                durationMs = durationMs,
+                                preparationMs = if (withPrep) 10_000 else 0,
+                                openingSoundId = null,
+                                intervalSoundId = null,
+                                intervalEveryMs = null,
+                                closingSoundId = closingId,
+                                ambienceSoundId = ambience?.id?.takeIf { withAmbience },
+                                overtimeMode = prefs.overtimeMode.takeIf { it != OvertimeMode.STOP } ?: OvertimeMode.STOP,
+                            )
+                        },
+                    )
+                }
+                Text(
+                    "Tap the gong to begin · ${Format.durationWords(durationMs)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                    textAlign = TextAlign.Center,
+                )
             }
         }
 

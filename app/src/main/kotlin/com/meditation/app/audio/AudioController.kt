@@ -71,6 +71,32 @@ class AudioController(
         }
     }
 
+    /**
+     * One-shot playback of a single sound of any length — used by the gong start button. Uses a
+     * throwaway ExoPlayer (not the SoundPool strike path, which is size-limited) on the main thread,
+     * and releases it when the sound finishes. Independent of any active session or preview.
+     */
+    suspend fun strikeOnce(soundId: String, volume: Float = 1f) {
+        val asset = sounds.byId(soundId) ?: return
+        val uri = asset.fileUri ?: run { synth.strike(asset, volume, 1, 0); return }
+        withContext(Dispatchers.Main) {
+            val exo = ExoPlayer.Builder(context).build()
+            exo.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(state: Int) {
+                    if (state == Player.STATE_ENDED) runCatching { exo.release() }
+                }
+                override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                    runCatching { exo.release() }
+                }
+            })
+            exo.setMediaItem(MediaItem.fromUri(uri))
+            exo.repeatMode = Player.REPEAT_MODE_OFF
+            exo.volume = volume
+            exo.prepare()
+            exo.play()
+        }
+    }
+
     /** Whether a real audio file exists for this asset (bundled in assets/ or an imported file). */
     private fun hasBundledFile(asset: SoundAsset): Boolean {
         val uri = asset.fileUri ?: return false

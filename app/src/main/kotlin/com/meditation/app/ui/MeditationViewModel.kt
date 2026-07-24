@@ -237,6 +237,10 @@ class MeditationViewModel(private val container: AppContainer) : ViewModel() {
 
     // Preview (isolated from any active session).
     fun previewSound(soundId: String, volume: Double = 0.8) = container.controller.previewSound(soundId, volume)
+
+    /** One-shot strike for the gong start button (plays once, any length). */
+    fun strikeGong(soundId: String, volume: Double = 1.0) =
+        viewModelScope.launch { container.audio.strikeOnce(soundId, volume.toFloat()) }
     fun previewMix(layers: List<Pair<String, Double>>) = container.controller.previewMix(layers)
     fun stopPreview() = container.controller.stopPreview()
 
