@@ -38,6 +38,8 @@ class AudioController(
     private val focus = AudioFocusManager(context)
     private val recorded = LinkedHashMap<String, AmbiencePlayer>() // soundId -> player, max 3
     private val generated = LinkedHashMap<String, NoiseGenerator>() // soundId -> generator
+    private val pausedByFocus = mutableSetOf<String>() // generated layers stopped for a call
+    @Volatile private var focusPaused = false // true while a call holds audio focus
     private val playerFactory = { AmbiencePlayer(context) }
     // ExoPlayer (preview + ambience) must be touched only on the main thread.
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -52,8 +54,19 @@ class AudioController(
 
     init {
         focus.onDuck = { recorded.values.forEach { it.duck() } }
-        focus.onPause = { recorded.values.forEach { it.pause() } }
-        focus.onResume = { recorded.values.forEach { it.resume() } }
+        // Focus loss only pauses for a phone call (see AudioFocusManager); when it does, silence the
+        // procedural layers too — otherwise noise/drones would keep streaming into the call.
+        focus.onPause = {
+            focusPaused = true
+            recorded.values.forEach { it.pause() }
+            generated.forEach { (id, gen) -> pausedByFocus.add(id); gen.stop() }
+        }
+        focus.onResume = {
+            focusPaused = false
+            recorded.values.forEach { it.resume() }
+            pausedByFocus.forEach { id -> generated[id]?.start() }
+            pausedByFocus.clear()
+        }
     }
 
     /** Play the strike/interval/closing/final sounds the engine emitted. */
@@ -132,7 +145,8 @@ class AudioController(
         }
         if (!focusHeld) { focus.requestFocus(); focusHeld = true }
 
-        val paused = !state.running
+        // Treat a call-driven focus pause as paused, so a periodic sync can't restart audio mid-call.
+        val paused = !state.running || focusPaused
         for (layer in desired) {
             val asset = sounds.byId(layer.soundId) ?: continue
             val layerVol = (masterAmbience * layer.volume).toFloat().coerceIn(0f, 1f)
@@ -220,6 +234,8 @@ class AudioController(
         recorded.clear()
         generated.values.forEach { it.stop() }
         generated.clear()
+        pausedByFocus.clear()
+        focusPaused = false
         if (focusHeld) { focus.abandon(); focusHeld = false }
     }
 
