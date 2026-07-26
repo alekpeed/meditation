@@ -184,8 +184,14 @@ class NoiseChannel(
     private val topRolloff: List<Biquad> = if (!voiced) emptyList() else when (colour) {
         NoiseColorCalibration.BROWN ->
             List(2) { BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.BROWN_TOP_HZ) }
-        NoiseColorCalibration.WHITE ->
-            listOf(BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.WHITE_TOP_HZ))
+        NoiseColorCalibration.WHITE -> listOf(
+            BiquadDesign.highShelf(
+                sampleRate,
+                NoiseColorCalibration.WHITE_SHELF_HZ,
+                NoiseColorCalibration.WHITE_SHELF_DB,
+            ),
+            BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.WHITE_TOP_HZ),
+        )
         // Pink is tilted by a shelf rather than cut by a filter alone: a steep cut leaves the
         // remaining top sitting as an audibly separate hissy layer, where a gradual tilt blends it
         // into the body of the sound. The low-pass then takes off the extreme top.

@@ -83,14 +83,16 @@ class NoiseColorCalibrationTest {
 
     @Test fun `white loses its top-end sizzle but stays the brightest colour`() {
         val reference = bandEnergy(NoiseColorCalibration.WHITE, 500.0)
-        // Constant-Q bands widen with frequency, so flat white still reads as rising; the roll-off
-        // must stop it climbing all the way to the top of the band.
+        // Flat-per-Hz white climbs steeply in constant-Q bands, which is the hiss. The voicing has
+        // to pull the top back down rather than let it keep rising.
+        val hiss = db(bandEnergy(NoiseColorCalibration.WHITE, 8_000.0) / reference)
+        assertTrue(hiss < 2.0, "white 8 kHz sat at $hiss dB relative to 500 Hz")
         val top = db(bandEnergy(NoiseColorCalibration.WHITE, 12_000.0) / reference)
-        assertTrue(top < 4.0, "white 12 kHz sat at $top dB relative to 500 Hz")
+        assertTrue(top < -4.0, "white 12 kHz sat at $top dB relative to 500 Hz")
 
-        // ...while leaving its presence range alone, so it is still recognisably white.
+        // ...without going dark: white keeps its presence range and stays the bright colour.
         val mid = db(bandEnergy(NoiseColorCalibration.WHITE, 2_000.0) / reference)
-        assertTrue(mid > 4.0, "white 2 kHz sat at $mid dB relative to 500 Hz")
+        assertTrue(mid > -2.0, "white 2 kHz sat at $mid dB relative to 500 Hz")
     }
 
     @Test fun `the colours stay distinct, white brightest and brown darkest`() {

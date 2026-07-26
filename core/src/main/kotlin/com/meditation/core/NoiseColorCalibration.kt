@@ -42,16 +42,19 @@ object NoiseColorCalibration {
      *
      * - Brown: two cascaded stages. A textbook -6 dB/octave slope still leaves audible hiss, and the
      *   deep rumble the colour is expected to have is darker than the raw slope.
-     * - White: one stage. Flat-per-Hz means over half of white's energy sits above 10 kHz, which is
-     *   what makes raw white noise feel harsh; this takes the sizzle off while leaving everything
-     *   below ~2 kHz untouched, so it stays clearly the brightest colour.
+     * - White: a shelf plus a low-pass, the same treatment as pink but gentler. Flat-per-Hz puts
+     *   over half of white's energy above 10 kHz, which is what makes raw white noise hiss; tilting
+     *   the top down removes that without costing it the brightness that distinguishes it. Raise
+     *   WHITE_SHELF_DB towards -6 for a brighter, hissier white.
      * - Pink: a shelf that tilts the whole top down, plus a low-pass. A textbook -3 dB/octave pink
      *   still carries enough high end to be heard as a separate hissy layer sitting on top of the
      *   body of the sound; tilting gradually blends it in, where a steep cut alone would not.
      *   Raise PINK_SHELF_DB towards -12 for a brighter pink, lower it for a darker one.
      */
     const val BROWN_TOP_HZ = 1_600.0
-    const val WHITE_TOP_HZ = 7_000.0
+    const val WHITE_SHELF_HZ = 2_000.0
+    const val WHITE_SHELF_DB = -12.0
+    const val WHITE_TOP_HZ = 8_000.0
     const val PINK_SHELF_HZ = 1_200.0
     const val PINK_SHELF_DB = -18.0
     const val PINK_TOP_HZ = 9_000.0
