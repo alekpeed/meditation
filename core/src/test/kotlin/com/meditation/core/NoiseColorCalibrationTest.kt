@@ -61,6 +61,29 @@ class NoiseColorCalibrationTest {
         assertTrue(abs(brown + 6.0) < 1.5, "brown slope was $brown dB/oct")
     }
 
+    @Test fun `white loses its top-end sizzle but stays the brightest colour`() {
+        val reference = bandEnergy(NoiseColorCalibration.WHITE, 500.0)
+        // Constant-Q bands widen with frequency, so flat white still reads as rising; the roll-off
+        // must stop it climbing all the way to the top of the band.
+        val top = db(bandEnergy(NoiseColorCalibration.WHITE, 12_000.0) / reference)
+        assertTrue(top < 4.0, "white 12 kHz sat at $top dB relative to 500 Hz")
+
+        // ...while leaving its presence range alone, so it is still recognisably white.
+        val mid = db(bandEnergy(NoiseColorCalibration.WHITE, 2_000.0) / reference)
+        assertTrue(mid > 4.0, "white 2 kHz sat at $mid dB relative to 500 Hz")
+    }
+
+    @Test fun `the colours stay distinct, white brightest and brown darkest`() {
+        fun tilt(colour: String) =
+            db(bandEnergy(colour, 4_000.0) / bandEnergy(colour, 500.0))
+
+        val white = tilt(NoiseColorCalibration.WHITE)
+        val pink = tilt(NoiseColorCalibration.PINK)
+        val brown = tilt(NoiseColorCalibration.BROWN)
+        assertTrue(white > pink + 3.0, "white ($white) should sit clearly above pink ($pink)")
+        assertTrue(pink > brown + 3.0, "pink ($pink) should sit clearly above brown ($brown)")
+    }
+
     @Test fun `brown is darker than its raw slope in the mids and highs`() {
         val reference = bandEnergy(NoiseColorCalibration.BROWN, 500.0)
         // A pure -6 dB/octave slope (less 3 dB/octave of band widening) would put 4 kHz at -9 dB

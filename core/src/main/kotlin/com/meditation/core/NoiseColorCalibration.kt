@@ -36,12 +36,21 @@ object NoiseColorCalibration {
     const val BROWN_CORNER_HZ = 18.0
 
     /**
-     * Extra top-end roll-off for brown, applied as two cascaded low-passes. A textbook -6 dB/octave
-     * slope still leaves audible hiss in the mids and highs; pulling the top down here gives the
-     * deep, rumbling character the colour is expected to have. Raise for a brighter brown, lower for
-     * a darker one.
+     * Per-colour top-end roll-off, on top of each colour's own slope. Raise for brighter, lower for
+     * darker. These are voicing choices rather than definitions of the colours, which is why they
+     * live here as single tunable constants.
+     *
+     * - Brown: two cascaded stages. A textbook -6 dB/octave slope still leaves audible hiss, and the
+     *   deep rumble the colour is expected to have is darker than the raw slope.
+     * - White: one stage. Flat-per-Hz means over half of white's energy sits above 10 kHz, which is
+     *   what makes raw white noise feel harsh; this takes the sizzle off while leaving everything
+     *   below ~2 kHz untouched, so it stays clearly the brightest colour.
+     * - Pink: one gentle stage. Pink is already the most balanced of the three, so this only trims
+     *   the last of the top-end air.
      */
     const val BROWN_TOP_HZ = 1_600.0
+    const val WHITE_TOP_HZ = 7_000.0
+    const val PINK_TOP_HZ = 12_000.0
 
     /** Peak ceiling used when choosing the shared target. */
     const val PEAK_CEILING = 0.80
