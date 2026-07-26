@@ -35,6 +35,14 @@ object NoiseColorCalibration {
     /** Brown's integrator corner, below the audible band so it keeps its deep weight. */
     const val BROWN_CORNER_HZ = 18.0
 
+    /**
+     * Extra top-end roll-off for brown, applied as two cascaded low-passes. A textbook -6 dB/octave
+     * slope still leaves audible hiss in the mids and highs; pulling the top down here gives the
+     * deep, rumbling character the colour is expected to have. Raise for a brighter brown, lower for
+     * a darker one.
+     */
+    const val BROWN_TOP_HZ = 1_600.0
+
     /** Peak ceiling used when choosing the shared target. */
     const val PEAK_CEILING = 0.80
 

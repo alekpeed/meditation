@@ -156,6 +156,18 @@ class NoiseChannel(
     private val highPass = BiquadDesign.highPass(sampleRate, highPassHz)
     private val lowPass = lowPassHz?.let { BiquadDesign.lowPass(sampleRate, it) }
 
+    /**
+     * Brown gets an extra cascaded roll-off on top of its -6 dB/octave slope. Textbook brown noise
+     * still carries plenty of mid and high energy; the deep, rumbling character people expect from
+     * "brown noise" is darker than the raw slope, so the top end is pulled down further here.
+     */
+    private val brownTop: List<Biquad> =
+        if (colour == NoiseColorCalibration.BROWN) {
+            List(2) { BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.BROWN_TOP_HZ) }
+        } else {
+            emptyList()
+        }
+
     fun next(): Double {
         val white = random.nextDouble() * 2.0 - 1.0
         val coloured = when (colour) {
@@ -165,6 +177,7 @@ class NoiseChannel(
         }
         var s = highPass.process(coloured)
         lowPass?.let { s = it.process(s) }
+        brownTop.forEach { s = it.process(s) }
         return s * gain
     }
 }

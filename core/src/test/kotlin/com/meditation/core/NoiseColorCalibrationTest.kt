@@ -39,27 +39,38 @@ class NoiseColorCalibrationTest {
         }
     }
 
-    @Test fun `pink falls about 3 dB per octave and brown about 6`() {
-        fun slopePerOctave(colour: String): Double {
-            val low = 500.0
-            val high = 2_000.0
-            val a = channel(colour, seed = 31)
-            val lowEnergy = Loudness.bandEnergy(low, 96_000) { a.next() }
-            val b = channel(colour, seed = 31)
-            val highEnergy = Loudness.bandEnergy(high, 96_000) { b.next() }
-            // Constant-Q bands widen with centre frequency (+3 dB per octave of bandwidth), so
-            // remove that before reading the spectral slope.
-            val octaves = log2(high / low)
-            return (db(highEnergy / lowEnergy) - 3.0 * octaves) / octaves
-        }
+    private fun bandEnergy(colour: String, centreHz: Double, seed: Int = 31): Double {
+        val c = channel(colour, seed)
+        return Loudness.bandEnergy(centreHz, 96_000) { c.next() }
+    }
 
-        val white = slopePerOctave(NoiseColorCalibration.WHITE)
-        val pink = slopePerOctave(NoiseColorCalibration.PINK)
-        val brown = slopePerOctave(NoiseColorCalibration.BROWN)
+    /** Spectral slope between two octave bands, corrected for constant-Q bandwidth growth. */
+    private fun slopePerOctave(colour: String, low: Double, high: Double): Double {
+        val octaves = log2(high / low)
+        return (db(bandEnergy(colour, high) / bandEnergy(colour, low)) - 3.0 * octaves) / octaves
+    }
+
+    @Test fun `pink falls about 3 dB per octave and brown about 6`() {
+        val white = slopePerOctave(NoiseColorCalibration.WHITE, 500.0, 2_000.0)
+        val pink = slopePerOctave(NoiseColorCalibration.PINK, 500.0, 2_000.0)
+        // Brown is measured below its extra top-end roll-off, where the raw colour slope applies.
+        val brown = slopePerOctave(NoiseColorCalibration.BROWN, 125.0, 500.0)
 
         assertTrue(abs(white) < 1.0, "white slope was $white dB/oct")
         assertTrue(abs(pink + 3.0) < 1.2, "pink slope was $pink dB/oct")
         assertTrue(abs(brown + 6.0) < 1.5, "brown slope was $brown dB/oct")
+    }
+
+    @Test fun `brown is darker than its raw slope in the mids and highs`() {
+        val reference = bandEnergy(NoiseColorCalibration.BROWN, 500.0)
+        // A pure -6 dB/octave slope (less 3 dB/octave of band widening) would put 4 kHz at -9 dB
+        // relative to 500 Hz. The extra roll-off must take it well below that.
+        val high = db(bandEnergy(NoiseColorCalibration.BROWN, 4_000.0) / reference)
+        assertTrue(high < -15.0, "brown 4 kHz sat at $high dB relative to 500 Hz")
+
+        // ...without thinning the low end that gives brown its weight.
+        val low = db(bandEnergy(NoiseColorCalibration.BROWN, 125.0) / reference)
+        assertTrue(low > 4.0, "brown 125 Hz sat at $low dB relative to 500 Hz")
     }
 
     @Test fun `high pass removes subsonic energy but keeps the audible low end`() {
