@@ -1,33 +1,74 @@
 package com.meditation.core
 
+import kotlin.math.PI
+import kotlin.math.exp
 import kotlin.math.ln
-import kotlin.math.sqrt
+import kotlin.random.Random
 
 /**
- * Shared, deterministic level calibration for the procedural noise colours.
+ * Level calibration for the procedural noise colours.
  *
- * The Paul Kellet pink filter used by the app has an observed uncompressed RMS of about 0.195 for
- * a uniform [-1, 1] input when its established 0.11 output scale is used. White and brown use the
- * gains below so their stationary *electrical* RMS matches that reference before user volume is
- * applied. This is not a loudness standard; final headphone/device audition remains required.
+ * The colours are matched by **K-weighted loudness** (ITU-R BS.1770), not raw electrical RMS:
+ * brown's energy sits where the ear is least sensitive, so equal RMS leaves it sounding much
+ * quieter than white. Matching perceptually means brown must run electrically hotter, so the shared
+ * target is chosen as the loudest level at which every colour still peaks below [PEAK_CEILING] —
+ * leaving the limiter with only occasional transients to catch.
+ *
+ * Every number is derived by running the real signal chain ([NoiseChannel]) with fixed seeds, so the
+ * calibration can never drift out of step with the filters, and it is unit-testable on a plain JVM.
  */
 object NoiseColorCalibration {
-    const val SAMPLE_RATE_HZ = 44_100.0
-    const val TARGET_RMS = 0.195
-    const val UNIFORM_WHITE_RMS = 0.5773502691896258 // 1 / sqrt(3)
 
-    /** Raw white noise is deliberately left full-band; its RMS matches the pink reference. */
-    val whiteGain: Double = TARGET_RMS / UNIFORM_WHITE_RMS
+    const val WHITE = "white"
+    const val PINK = "pink"
+    const val BROWN = "brown"
 
-    /**
-     * A stable red/brown one-pole filter. The ~70 Hz shelf limits sub-bass dominance while
-     * retaining the -6 dB/octave amplitude slope above it.
-     */
-    const val BROWN_POLE = 0.99
-    val brownDrive: Double = TARGET_RMS * sqrt(1.0 - BROWN_POLE * BROWN_POLE) / UNIFORM_WHITE_RMS
-    val brownCornerHz: Double = -SAMPLE_RATE_HZ * ln(BROWN_POLE) / (2.0 * Math.PI)
+    /** Device-native on Android, and the rate the BS.1770 coefficients are defined at. */
+    const val SAMPLE_RATE_HZ = 48_000.0
 
-    /** Stationary RMS of `state = pole * state + drive * uniformWhite`. */
-    fun brownStationaryRms(pole: Double = BROWN_POLE, drive: Double = brownDrive): Double =
-        drive * UNIFORM_WHITE_RMS / sqrt(1.0 - pole * pole)
+    /** Removes inaudible subsonic energy that would waste headroom and move speakers for nothing. */
+    const val HIGH_PASS_HZ = 30.0
+
+    /** Gentle top-end limit. */
+    const val LOW_PASS_HZ = 18_000.0
+
+    /** Brown's integrator corner, below the audible band so it keeps its deep weight. */
+    const val BROWN_CORNER_HZ = 18.0
+
+    /** Peak ceiling used when choosing the shared target. */
+    const val PEAK_CEILING = 0.80
+
+    val BROWN_POLE: Double = exp(-2.0 * PI * BROWN_CORNER_HZ / SAMPLE_RATE_HZ)
+    val brownCornerHz: Double = -SAMPLE_RATE_HZ * ln(BROWN_POLE) / (2.0 * PI)
+
+    private const val MEASURE_SAMPLES = 24_000
+
+    /** K-weighted loudness and peak of each colour at unity gain, measured through the real chain. */
+    private val unity: Map<String, Pair<Double, Double>> =
+        listOf(WHITE, PINK, BROWN).associateWith { colour ->
+            val loudnessChannel = NoiseChannel(colour, Random(colour.hashCode() * 31 + 1), gain = 1.0)
+            val loudness = Loudness.kWeightedRms(MEASURE_SAMPLES) { loudnessChannel.next() }
+            val peakChannel = NoiseChannel(colour, Random(colour.hashCode() * 31 + 2), gain = 1.0)
+            val peak = Loudness.peak(MEASURE_SAMPLES) { peakChannel.next() }
+            loudness to peak
+        }
+
+    /** The loudest shared K-weighted level at which every colour still peaks below the ceiling. */
+    val targetLoudness: Double = unity.values.minOf { (loudness, peak) -> PEAK_CEILING * loudness / peak }
+
+    /** Gain that brings [colour] to [targetLoudness]. */
+    fun gainFor(colour: String): Double {
+        val loudness = unity[colour]?.first ?: return 1.0
+        return targetLoudness / loudness
+    }
+
+    val whiteGain: Double get() = gainFor(WHITE)
+    val pinkGain: Double get() = gainFor(PINK)
+    val brownGain: Double get() = gainFor(BROWN)
+
+    fun isNoiseColour(type: String): Boolean = type == WHITE || type == PINK || type == BROWN
+
+    /** Builds a calibrated, playback-ready channel. */
+    fun channel(colour: String, random: Random): NoiseChannel =
+        NoiseChannel(colour = colour, random = random, gain = gainFor(colour))
 }

@@ -7,8 +7,10 @@ import android.media.AudioTrack
 import com.meditation.core.Binaural
 import com.meditation.core.GeneratorConfig
 import com.meditation.core.NoiseColorCalibration
+import com.meditation.core.PeakLimiter
 import kotlin.concurrent.thread
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.sin
 import kotlin.math.tanh
 import kotlin.random.Random
@@ -20,7 +22,9 @@ import kotlin.random.Random
  */
 class NoiseGenerator(private val config: GeneratorConfig) {
 
-    private val sampleRate = 44_100
+    // 48 kHz is the native rate on essentially all Android audio hardware, so there is no
+    // resampling on the way out, and it is the rate the loudness calibration is defined at.
+    private val sampleRate = NoiseColorCalibration.SAMPLE_RATE_HZ.toInt()
     @Volatile private var running = false
     @Volatile private var gain = config.gain.toFloat().coerceIn(0f, 1f)
     private var track: AudioTrack? = null
@@ -28,9 +32,12 @@ class NoiseGenerator(private val config: GeneratorConfig) {
 
     fun setGain(value: Double) { gain = value.toFloat().coerceIn(0f, 1f) }
 
-    // Binaural beats need a different tone per ear, so that one type streams stereo; everything
-    // else stays mono (identical to before).
-    private val stereo = config.type == "binaural"
+    private val isNoiseColour = NoiseColorCalibration.isNoiseColour(config.type)
+
+    // Binaural needs a different tone per ear. The noise colours are stereo too, generated from two
+    // *independent* random streams: decorrelated noise is what makes them sound wide and enveloping
+    // rather than collapsing to a point inside the head. Drones stay mono.
+    private val stereo = config.type == "binaural" || isNoiseColour
 
     fun start() {
         if (running) return
@@ -70,15 +77,17 @@ class NoiseGenerator(private val config: GeneratorConfig) {
             // Run at audio priority so the OS won't preempt us and underrun the track.
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO)
 
+            if (isNoiseColour) {
+                streamNoise(framesPerChunk)
+                return@thread
+            }
             if (stereo) {
                 streamBinaural(framesPerChunk)
                 return@thread
             }
 
             val buffer = FloatArray(framesPerChunk)
-            // Filter/oscillator state kept across buffers so there are no seams between writes.
-            var b0 = 0.0; var b1 = 0.0; var b2 = 0.0; var b3 = 0.0; var b4 = 0.0; var b5 = 0.0; var b6 = 0.0
-            var brown = 0.0
+            // Oscillator state kept across buffers so there are no seams between writes.
             var phase = 0.0
             var phase2 = 0.0
             val freq = config.frequencyHz ?: 110.0
@@ -99,31 +108,6 @@ class NoiseGenerator(private val config: GeneratorConfig) {
             while (running) {
                 for (i in buffer.indices) {
                     val sample = when (config.type) {
-                        "white" -> {
-                            // Keep the advertised white noise genuinely full-band. Its gain is
-                            // calibrated to the existing pink implementation's uncompressed RMS.
-                            (whiteSample() * NoiseColorCalibration.whiteGain).toFloat()
-                        }
-                        "pink" -> {
-                            val w = whiteSample().toDouble()
-                            // Paul Kellet's pink-noise approximation.
-                            b0 = 0.99886 * b0 + w * 0.0555179
-                            b1 = 0.99332 * b1 + w * 0.0750759
-                            b2 = 0.96900 * b2 + w * 0.1538520
-                            b3 = 0.86650 * b3 + w * 0.3104856
-                            b4 = 0.55000 * b4 + w * 0.5329522
-                            b5 = -0.7616 * b5 - w * 0.0168980
-                            val pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362
-                            b6 = w * 0.115926
-                            (pink * 0.11).toFloat()
-                        }
-                        "brown" -> {
-                            // A calibrated leaky integrator: the 70 Hz shelf prevents the old
-                            // sub-bass-heavy rumble while retaining brown's -6 dB/octave colour.
-                            brown = brown * NoiseColorCalibration.BROWN_POLE +
-                                whiteSample() * NoiseColorCalibration.brownDrive
-                            brown.toFloat()
-                        }
                         "sine" -> {
                             phase += 2 * PI * freq / sampleRate
                             if (phase > 2 * PI) phase -= 2 * PI
@@ -175,6 +159,31 @@ class NoiseGenerator(private val config: GeneratorConfig) {
         runCatching { track?.pause(); track?.flush(); track?.stop() }
         runCatching { track?.release() }
         track = null
+    }
+
+    /**
+     * Streams a noise colour as decorrelated stereo through the calibrated chain in :core
+     * (colour -> 30 Hz high-pass -> 18 kHz low-pass -> loudness-matched gain), with a peak limiter
+     * linked across both channels so gain reduction never shifts the stereo image.
+     */
+    private fun streamNoise(framesPerChunk: Int) {
+        val left = NoiseColorCalibration.channel(config.type, Random(System.nanoTime()))
+        val right = NoiseColorCalibration.channel(config.type, Random(System.nanoTime() * 31 + 17))
+        val limiter = PeakLimiter(sampleRate = sampleRate.toDouble())
+        val buffer = FloatArray(framesPerChunk * 2)
+        while (running) {
+            val volume = gain
+            var j = 0
+            for (f in 0 until framesPerChunk) {
+                val l = left.next() * volume
+                val r = right.next() * volume
+                val reduction = limiter.gainFor(maxOf(abs(l), abs(r)))
+                buffer[j++] = (l * reduction).toFloat()
+                buffer[j++] = (r * reduction).toFloat()
+            }
+            val t = track ?: break
+            t.write(buffer, 0, buffer.size, AudioTrack.WRITE_BLOCKING)
+        }
     }
 
     /** Streams two pure tones — one per ear — whose difference is the binaural beat. */
