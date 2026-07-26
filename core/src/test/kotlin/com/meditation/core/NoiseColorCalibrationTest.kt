@@ -44,21 +44,41 @@ class NoiseColorCalibrationTest {
         return Loudness.bandEnergy(centreHz, 96_000) { c.next() }
     }
 
-    /** Spectral slope between two octave bands, corrected for constant-Q bandwidth growth. */
-    private fun slopePerOctave(colour: String, low: Double, high: Double): Double {
-        val octaves = log2(high / low)
-        return (db(bandEnergy(colour, high) / bandEnergy(colour, low)) - 3.0 * octaves) / octaves
+    /** Band energy of the bare colour, with the voicing roll-off stripped off. */
+    private fun rawBandEnergy(colour: String, centreHz: Double, seed: Int = 31): Double {
+        val c = NoiseChannel(colour, Random(seed), gain = 1.0, voiced = false)
+        return Loudness.bandEnergy(centreHz, 96_000) { c.next() }
     }
 
-    @Test fun `pink falls about 3 dB per octave and brown about 6`() {
-        val white = slopePerOctave(NoiseColorCalibration.WHITE, 500.0, 2_000.0)
-        val pink = slopePerOctave(NoiseColorCalibration.PINK, 500.0, 2_000.0)
-        // Brown is measured below its extra top-end roll-off, where the raw colour slope applies.
-        val brown = slopePerOctave(NoiseColorCalibration.BROWN, 125.0, 500.0)
+    /** Spectral slope between two octave bands, corrected for constant-Q bandwidth growth. */
+    private fun rawSlopePerOctave(colour: String, low: Double, high: Double): Double {
+        val octaves = log2(high / low)
+        return (db(rawBandEnergy(colour, high) / rawBandEnergy(colour, low)) - 3.0 * octaves) / octaves
+    }
+
+    @Test fun `the colour maths is right - pink falls 3 dB per octave and brown 6`() {
+        // Measured unvoiced, so this checks the generators themselves rather than the voicing.
+        val white = rawSlopePerOctave(NoiseColorCalibration.WHITE, 500.0, 2_000.0)
+        val pink = rawSlopePerOctave(NoiseColorCalibration.PINK, 500.0, 2_000.0)
+        val brown = rawSlopePerOctave(NoiseColorCalibration.BROWN, 500.0, 2_000.0)
 
         assertTrue(abs(white) < 1.0, "white slope was $white dB/oct")
         assertTrue(abs(pink + 3.0) < 1.2, "pink slope was $pink dB/oct")
         assertTrue(abs(brown + 6.0) < 1.5, "brown slope was $brown dB/oct")
+    }
+
+    @Test fun `pink has no hissy layer sitting on top of its body`() {
+        val reference = bandEnergy(NoiseColorCalibration.PINK, 500.0)
+        // A textbook -3 dB/octave pink reads flat in constant-Q bands, which leaves the top audible
+        // as a separate hiss. The voicing must tilt it well down.
+        val presence = db(bandEnergy(NoiseColorCalibration.PINK, 4_000.0) / reference)
+        assertTrue(presence < -8.0, "pink 4 kHz sat at $presence dB relative to 500 Hz")
+        val top = db(bandEnergy(NoiseColorCalibration.PINK, 8_000.0) / reference)
+        assertTrue(top < -12.0, "pink 8 kHz sat at $top dB relative to 500 Hz")
+
+        // ...while keeping the low end that gives pink its body.
+        val low = db(bandEnergy(NoiseColorCalibration.PINK, 125.0) / reference)
+        assertTrue(low > -1.0, "pink 125 Hz sat at $low dB relative to 500 Hz")
     }
 
     @Test fun `white loses its top-end sizzle but stays the brightest colour`() {

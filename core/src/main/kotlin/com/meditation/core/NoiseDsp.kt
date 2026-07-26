@@ -4,6 +4,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -68,6 +69,23 @@ object BiquadDesign {
             b2 = ((1 - cw) / 2) / a0,
             a1 = (-2 * cw) / a0,
             a2 = (1 - alpha) / a0,
+        )
+    }
+
+    /** High shelf: everything above [cutoffHz] is lifted or cut by [gainDb], with a gradual slope. */
+    fun highShelf(sampleRate: Double, cutoffHz: Double, gainDb: Double, q: Double = BUTTERWORTH_Q): Biquad {
+        val a = 10.0.pow(gainDb / 40.0)
+        val w0 = 2 * PI * cutoffHz / sampleRate
+        val cw = cos(w0)
+        val alpha = sin(w0) / 2 * sqrt((a + 1 / a) * (1 / q - 1) + 2)
+        val twoSqrtAAlpha = 2 * sqrt(a) * alpha
+        val a0 = (a + 1) - (a - 1) * cw + twoSqrtAAlpha
+        return Biquad(
+            b0 = (a * ((a + 1) + (a - 1) * cw + twoSqrtAAlpha)) / a0,
+            b1 = (-2 * a * ((a - 1) + (a + 1) * cw)) / a0,
+            b2 = (a * ((a + 1) + (a - 1) * cw - twoSqrtAAlpha)) / a0,
+            a1 = (2 * ((a - 1) - (a + 1) * cw)) / a0,
+            a2 = ((a + 1) - (a - 1) * cw - twoSqrtAAlpha) / a0,
         )
     }
 
@@ -150,6 +168,8 @@ class NoiseChannel(
     private val gain: Double = 1.0,
     highPassHz: Double = NoiseColorCalibration.HIGH_PASS_HZ,
     lowPassHz: Double? = NoiseColorCalibration.LOW_PASS_HZ,
+    /** False strips the voicing, leaving the bare colour — used to verify the slope maths. */
+    voiced: Boolean = true,
 ) {
     private val pink = PinkFilter()
     private val brown = BrownFilter(NoiseColorCalibration.BROWN_POLE)
@@ -161,13 +181,22 @@ class NoiseChannel(
      * the colour is expected to (see the cutoffs in [NoiseColorCalibration]). Brown needs two stages
      * to reach its deep character; white and pink need one and a gentle one respectively.
      */
-    private val topRolloff: List<Biquad> = when (colour) {
+    private val topRolloff: List<Biquad> = if (!voiced) emptyList() else when (colour) {
         NoiseColorCalibration.BROWN ->
             List(2) { BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.BROWN_TOP_HZ) }
         NoiseColorCalibration.WHITE ->
             listOf(BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.WHITE_TOP_HZ))
-        NoiseColorCalibration.PINK ->
-            listOf(BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.PINK_TOP_HZ))
+        // Pink is tilted by a shelf rather than cut by a filter alone: a steep cut leaves the
+        // remaining top sitting as an audibly separate hissy layer, where a gradual tilt blends it
+        // into the body of the sound. The low-pass then takes off the extreme top.
+        NoiseColorCalibration.PINK -> listOf(
+            BiquadDesign.highShelf(
+                sampleRate,
+                NoiseColorCalibration.PINK_SHELF_HZ,
+                NoiseColorCalibration.PINK_SHELF_DB,
+            ),
+            BiquadDesign.lowPass(sampleRate, NoiseColorCalibration.PINK_TOP_HZ),
+        )
         else -> emptyList()
     }
 
