@@ -127,8 +127,20 @@ class MeditationController(
 
     // ---- Preview (isolated; safe to call during an active session) ------------------------
 
-    fun previewSound(soundId: String, volume: Double) = scope.launch { audio.previewSound(soundId, volume) }
-    fun previewMix(layers: List<Pair<String, Double>>) = scope.launch { audio.previewMix(layers) }
+    // Preview starts the foreground service too: without it the process is frozen once the user
+    // leaves the app and a previewed ambience or noise simply stops. The service takes itself down
+    // again when the preview ends (and no session is running). Starting it is safe here because a
+    // preview is always begun from a foreground tap.
+    fun previewSound(soundId: String, volume: Double) = scope.launch {
+        audio.previewSound(soundId, volume)
+        if (audio.previewActive.value) runCatching { startService() }
+    }
+
+    fun previewMix(layers: List<Pair<String, Double>>) = scope.launch {
+        audio.previewMix(layers)
+        if (audio.previewActive.value) runCatching { startService() }
+    }
+
     fun stopPreview() = audio.stopPreview()
 
     /** Called by the alarm receiver as the final-bell fallback. Idempotent via engine dedup. */

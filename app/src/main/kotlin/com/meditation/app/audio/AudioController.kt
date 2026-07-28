@@ -15,6 +15,9 @@ import com.meditation.core.VolumeSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,6 +54,15 @@ class AudioController(
     private val previewExos = LinkedHashMap<String, ExoPlayer>()
     private val previewNoises = LinkedHashMap<String, NoiseGenerator>()
     private var configPreviewGen: NoiseGenerator? = null
+
+    /**
+     * True while a *continuous* preview (looping ambience or a generated layer) is playing. The
+     * foreground service watches this so previewed audio survives leaving the app: without it the
+     * process is frozen in the background and playback simply stops. One-shot strikes never set it,
+     * so previewing a bell cannot leave an ongoing notification behind.
+     */
+    private val _previewActive = MutableStateFlow(false)
+    val previewActive: StateFlow<Boolean> = _previewActive.asStateFlow()
 
     init {
         focus.onDuck = { recorded.values.forEach { it.duck() } }
@@ -165,13 +177,15 @@ class AudioController(
 
     /** Preview one sound. Short strikes play once; ambience/generated loop until [stopPreview]. */
     suspend fun previewSound(soundId: String, volume: Double) {
-        stopPreview()
+        // Swap players without letting previewActive dip to false in between, so the service that
+        // keeps background playback alive is never torn down mid-change.
+        stopPreviewPlayers()
         startPreview(soundId, volume)
     }
 
     /** Preview a full ambience mix (up to three layers) without touching the active session. */
     suspend fun previewMix(layers: List<Pair<String, Double>>) {
-        stopPreview()
+        stopPreviewPlayers()
         layers.take(3).forEach { (id, vol) -> startPreview(id, vol) }
     }
 
@@ -182,6 +196,7 @@ class AudioController(
             previewNoises[soundId] = NoiseGenerator(asset.generatorConfig!!).apply {
                 setGain(vol.toDouble()); start()
             }
+            _previewActive.value = true // generated layers run until stopped
         } else if (!hasBundledFile(asset)) {
             // No recording: synthesize strike voices (bells/bowls/gongs/wood/chime). Ambience
             // recordings without a file stay silent (their generated counterparts do play).
@@ -199,6 +214,7 @@ class AudioController(
                 }
                 previewExos[soundId] = exo
             }
+            if (loop) _previewActive.value = true // a looping ambience runs until stopped
         }
     }
 
@@ -220,6 +236,11 @@ class AudioController(
     }
 
     fun stopPreview() {
+        stopPreviewPlayers()
+        _previewActive.value = false
+    }
+
+    private fun stopPreviewPlayers() {
         val exos = previewExos.values.toList()
         previewExos.clear()
         if (exos.isNotEmpty()) mainScope.launch { exos.forEach { runCatching { it.release() } } }

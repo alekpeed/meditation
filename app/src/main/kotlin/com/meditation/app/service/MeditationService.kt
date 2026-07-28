@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.meditation.app.MeditationApp
 import com.meditation.core.SessionStatus
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
@@ -31,15 +32,23 @@ class MeditationService : LifecycleService() {
         // Post the ongoing notification immediately (required within the FGS start window).
         startAsForeground()
 
-        // Render controller state; stop cleanly when the session ends or is cleared.
+        // Render controller state; stop cleanly once nothing needs the process alive. A continuous
+        // preview (ambience or generated noise) counts as well as a session — otherwise previewed
+        // audio dies as soon as the user leaves the app.
         lifecycleScope.launch {
-            container.controller.snapshot.collectLatest { snap ->
+            combine(
+                container.controller.snapshot,
+                container.audio.previewActive,
+            ) { snap, previewing -> snap to previewing }.collectLatest { (snap, previewing) ->
                 // The controller posts the completion notification and clears state on terminal;
-                // the service just renders active state and stops when the session is gone.
-                if (snap == null || snap.status == SessionStatus.COMPLETED || snap.status == SessionStatus.CANCELLED) {
-                    stopSelfSafely()
-                } else {
-                    notifications.update(snap)
+                // the service just renders active state and stops when nothing is playing.
+                val sessionOver = snap == null ||
+                    snap.status == SessionStatus.COMPLETED ||
+                    snap.status == SessionStatus.CANCELLED
+                when {
+                    !sessionOver -> notifications.update(snap)
+                    previewing -> notifications.update(null)
+                    else -> stopSelfSafely()
                 }
             }
         }
