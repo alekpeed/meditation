@@ -259,7 +259,34 @@ Note that constant-Q band analysis widens with frequency (+3 dB/octave of bandwi
 
 ---
 
-## 10. Summary of tuned constants
+## 10. iOS / Swift port
+
+`NoiseGenerator.swift` in this folder is a complete drop-in implementation with the same tuning.
+`NoiseEngine.shared.play(.brown)` is all that is needed. iOS-specific mappings:
+
+| Android | iOS |
+|---|---|
+| `AudioTrack` streaming thread | `AVAudioSourceNode` render block on `AVAudioEngine` |
+| Foreground service + ongoing notification | `UIBackgroundModes` = `audio` in Info.plist |
+| Ignoring audio-focus loss | `AVAudioSession` category `.playback` with `.mixWithOthers` |
+| Pausing for phone calls | `AVAudioSession.interruptionNotification` (`.began` / `.ended` + `.shouldResume`) |
+
+Two things that will silently break it:
+
+- **Without the `audio` background mode**, iOS suspends the app when the user leaves it and playback
+  stops. This looks exactly like an audio bug and is not one — it is the same class of problem as the
+  missing foreground service on Android.
+- **Nothing may allocate or lock inside the render block.** Use the included `XorShift64` rather than
+  Swift's `SystemRandomNumberGenerator`, and keep the filter state in a pre-built reference type that
+  the block captures directly.
+
+Ask for 48 kHz via `setPreferredSampleRate`. The device may still choose another rate; the filters
+adapt because they are designed from the live rate, but the K-weighting coefficients in §6 are
+48 kHz-specific, so the loudness match drifts slightly if the session lands elsewhere.
+
+---
+
+## 11. Summary of tuned constants
 
 ```
 Sample rate            48000 Hz, stereo, float
